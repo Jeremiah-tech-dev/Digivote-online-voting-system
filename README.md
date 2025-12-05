@@ -31,10 +31,10 @@ A secure and modern online voting platform for Kenya's electoral process, built 
 - CSS3
 
 ### Backend
-- Flask (Python)
+- (Python)
 - SQLAlchemy ORM
 - SQLite Database
-- Flask-CORS
+- python-CORS
 
 ## Installation
 
