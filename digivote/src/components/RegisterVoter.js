@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import CustomAlert from './CustomAlert';
+import { API_URL } from '../config';
 import '../App.css';
 
 const RegisterVoter = ({ onClose }) => {
@@ -33,7 +34,7 @@ const RegisterVoter = ({ onClose }) => {
     }
     
     try {
-      const response = await fetch('http://localhost:5000/api/register', {
+      const response = await fetch(`${API_URL}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

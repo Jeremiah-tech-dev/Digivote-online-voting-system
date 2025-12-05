@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_URL } from '../config';
 import '../App.css';
 
 const VotingPopup = ({ onClose, voterId }) => {
@@ -13,7 +14,7 @@ const VotingPopup = ({ onClose, voterId }) => {
 
   const fetchVoterCounty = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/voters/${voterId}`);
+      const response = await fetch(`${API_URL}/api/voters/${voterId}`);
       const data = await response.json();
       setVoterCounty(data.county);
     } catch (error) {
@@ -84,7 +85,7 @@ const VotingPopup = ({ onClose, voterId }) => {
 
   const handleVoteForCandidate = async (position, candidateId, candidateName) => {
     try {
-      await fetch('http://localhost:5000/api/votes', {
+      await fetch(`${API_URL}/api/votes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ voter_id: voterId, candidate_id: candidateId })
@@ -93,7 +94,7 @@ const VotingPopup = ({ onClose, voterId }) => {
       setVotedPositions(prev => [...prev, position]);
       
       if (position === 'senator') {
-        await fetch(`http://localhost:5000/api/voters/${voterId}/mark-voted`, {
+        await fetch(`${API_URL}/api/voters/${voterId}/mark-voted`, {
           method: 'PUT'
         });
         setShowSuccessAlert(true);

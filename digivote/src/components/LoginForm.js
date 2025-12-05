@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import CustomAlert from './CustomAlert';
+import { API_URL } from '../config';
 import '../App.css';
 
 const LoginForm = ({ onClose, onLoginSuccess, onRegisterClick }) => {
@@ -17,7 +18,7 @@ const LoginForm = ({ onClose, onLoginSuccess, onRegisterClick }) => {
     e.preventDefault();
     
     try {
-      const response = await fetch('http://localhost:5000/api/login', {
+      const response = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

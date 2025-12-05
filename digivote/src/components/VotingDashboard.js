@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaChartBar, FaVoteYea, FaUsers, FaCheckCircle, FaTachometerAlt, FaClipboardList, FaUserFriends, FaBriefcase, FaUserTie } from 'react-icons/fa';
 import Footer from '../Footer';
 import VotingPopup from './VotingPopup';
+import { API_URL } from '../config';
 import '../App.css';
 
 const VotingDashboard = ({ onClose, voterId }) => {
@@ -23,7 +24,7 @@ const VotingDashboard = ({ onClose, voterId }) => {
 
   const fetchStats = async () => {
     try {
-      const votersRes = await fetch('http://localhost:5000/api/voters');
+      const votersRes = await fetch(`${API_URL}/api/voters`);
       const votersData = await votersRes.json();
       
       setStats(prev => ({
@@ -37,7 +38,7 @@ const VotingDashboard = ({ onClose, voterId }) => {
 
   const checkVotingStatus = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/voters/${voterId}`);
+      const response = await fetch(`${API_URL}/api/voters/${voterId}`);
       const data = await response.json();
       setHasVoted(data.has_voted === 1);
     } catch (error) {

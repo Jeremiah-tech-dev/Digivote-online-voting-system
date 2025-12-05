@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Footer from '../Footer';
 import CustomAlert from './CustomAlert';
+import { API_URL } from '../config';
 import '../App.css';
 
 const VerifyVoter = ({ onClose }) => {
@@ -18,7 +19,7 @@ const VerifyVoter = ({ onClose }) => {
     e.preventDefault();
     
     try {
-      const response = await fetch('http://localhost:5000/api/verify', {
+      const response = await fetch(`${API_URL}/api/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

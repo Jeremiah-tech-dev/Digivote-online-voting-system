@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_URL } from '../config';
 import '../App.css';
 
 const AdminDashboard = ({ onClose }) => {
@@ -10,7 +11,7 @@ const AdminDashboard = ({ onClose }) => {
 
   const fetchResults = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/results');
+      const response = await fetch(`${API_URL}/api/results`);
       const data = await response.json();
       setResults(data.results);
     } catch (error) {
