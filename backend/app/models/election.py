@@ -42,6 +42,7 @@ class Candidate(db.Model):
     last_name = db.Column(db.String(100), nullable=False)
     party = db.Column(db.String(100), nullable=False)
     position = db.Column(db.String(100), nullable=False)
+    county = db.Column(db.String(100))
     election_id = db.Column(db.Integer, db.ForeignKey('elections.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
@@ -56,5 +57,6 @@ class Candidate(db.Model):
             'last_name': self.last_name,
             'party': self.party,
             'position': self.position,
+            'county': self.county,
             'election_id': self.election_id
         }

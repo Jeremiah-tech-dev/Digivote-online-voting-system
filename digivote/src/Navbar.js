@@ -5,6 +5,8 @@ import RegisterVoter from './components/RegisterVoter';
 import VerifyVoter from './components/VerifyVoter';
 import LoginForm from './components/LoginForm';
 import VotingDashboard from './components/VotingDashboard';
+import AdminDashboard from './components/AdminDashboard';
+import AdminLogin from './components/AdminLogin';
 import './App.css';
 
 const Navbar = () => {
@@ -17,6 +19,8 @@ const Navbar = () => {
   const [showVerifyForm, setShowVerifyForm] = useState(false);
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [showVotingDashboard, setShowVotingDashboard] = useState(false);
+  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [loggedInVoter, setLoggedInVoter] = useState(null);
 
   const openModal = (type) => {
@@ -109,7 +113,7 @@ const Navbar = () => {
           <MdHowToVote size={30} />
         </div>
         
-        <button className="admin-btn">Admin</button>
+        <button className="admin-btn" onClick={() => setShowAdminLogin(true)}>Admin</button>
       </nav>
 
       {/* Modal */}
@@ -199,6 +203,20 @@ const Navbar = () => {
           voterId={loggedInVoter?.id}
         />
       )}
+      
+      {/* Admin Login */}
+      {showAdminLogin && (
+        <AdminLogin 
+          onClose={() => setShowAdminLogin(false)}
+          onLoginSuccess={() => {
+            setShowAdminLogin(false);
+            setShowAdminDashboard(true);
+          }}
+        />
+      )}
+      
+      {/* Admin Dashboard */}
+      {showAdminDashboard && <AdminDashboard onClose={() => setShowAdminDashboard(false)} />}
     </header>
   );
 };

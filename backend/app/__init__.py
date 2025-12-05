@@ -21,9 +21,10 @@ def create_app():
         db.create_all()
     
     from app.routes import voter_routes, election_routes
-    from app.routes import vote_routes
+    from app.routes import vote_routes, results_routes
     app.register_blueprint(voter_routes.bp)
     app.register_blueprint(election_routes.bp)
     app.register_blueprint(vote_routes.bp)
+    app.register_blueprint(results_routes.bp)
     
     return app

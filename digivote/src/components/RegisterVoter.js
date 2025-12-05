@@ -84,7 +84,14 @@ const RegisterVoter = ({ onClose }) => {
           <input type="text" name="address" placeholder="Physical Address" value={formData.address} onChange={handleChange} />
           
           <div className="form-row">
-            <input type="text" name="county" placeholder="County *" value={formData.county} onChange={handleChange} required />
+            <select name="county" value={formData.county} onChange={handleChange} required>
+              <option value="">Select County *</option>
+              <option value="Nairobi">Nairobi</option>
+              <option value="Mombasa">Mombasa</option>
+              <option value="Kisumu">Kisumu</option>
+              <option value="Nakuru">Nakuru</option>
+              <option value="Eldoret">Eldoret</option>
+            </select>
             <input type="text" name="constituency" placeholder="Constituency *" value={formData.constituency} onChange={handleChange} required />
           </div>
           
