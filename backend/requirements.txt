@@ -4,3 +4,4 @@ gunicorn==21.2.0
 sqlalchemy==2.0.23
 pydantic==1.10.13
 python-multipart==0.0.6
+passlib[bcrypt]==1.7.4

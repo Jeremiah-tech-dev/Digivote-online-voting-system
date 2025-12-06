@@ -1,4 +1,6 @@
-from werkzeug.security import generate_password_hash, check_password_hash
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Dictionary of Kenyan counties
 KENYAN_COUNTIES = {
@@ -15,12 +17,12 @@ VALID_GENDERS = ['male', 'female', 'other']
 ELECTION_TYPES = ('Presidential', 'Parliamentary', 'County', 'Senatorial', 'Gubernatorial')
 
 def hash_password(password):
-    """Hash a password using werkzeug"""
-    return generate_password_hash(password)
+    """Hash a password using passlib"""
+    return pwd_context.hash(password)
 
 def verify_password(password_hash, password):
     """Verify a password against its hash"""
-    return check_password_hash(password_hash, password)
+    return pwd_context.verify(password, password_hash)
 
 def validate_voter_data(data):
     """Validate voter registration data using dict"""
