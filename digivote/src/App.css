@@ -2087,3 +2087,39 @@ button:disabled {
   50% { transform: translateY(-5px); }
 }
 
+/* --- FULLSCREEN LOADING OVERLAY --- */
+.fullscreen-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-content {
+  text-align: center;
+  color: white;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid rgba(132, 204, 22, 0.3);
+  border-top-color: #84cc16;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 20px;
+}
+
+.loading-content p {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+}
+

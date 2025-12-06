@@ -33,11 +33,6 @@ class VoterLogin(BaseModel):
 
 @router.post('/register')
 def register_voter(data: VoterRegister, db: Session = Depends(get_db)):
-    # Validate data
-    validation = validate_voter_data(data.dict())
-    if not validation['valid']:
-        raise HTTPException(status_code=400, detail='Validation failed: ' + ', '.join(validation['errors']))
-    
     # Check if national ID already exists
     existing_voter = db.query(Voter).filter(Voter.national_id_number == data.nationalId).first()
     if existing_voter:
@@ -62,13 +57,8 @@ def register_voter(data: VoterRegister, db: Session = Depends(get_db)):
     
     db.add(new_voter)
     db.commit()
-    db.refresh(new_voter)
     
-    return {
-        'message': 'Registration successful',
-        'voter_id': new_voter.id,
-        'voter': new_voter.to_dict()
-    }
+    return {'message': 'Registration successful', 'voter_id': new_voter.id}
 
 @router.post('/verify')
 def verify_voter(data: VoterVerify, db: Session = Depends(get_db)):

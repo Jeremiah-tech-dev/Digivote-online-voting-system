@@ -21,6 +21,7 @@ const RegisterVoter = ({ onClose }) => {
     confirmPassword: ''
   });
   const [alert, setAlert] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,6 +34,7 @@ const RegisterVoter = ({ onClose }) => {
       return;
     }
     
+    setLoading(true);
     try {
       const response = await fetch(`${API_URL}/api/register`, {
         method: 'POST',
@@ -51,11 +53,21 @@ const RegisterVoter = ({ onClose }) => {
     } catch (error) {
       setAlert({ message: 'Error connecting to server', type: 'error' });
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="register-voter-modal">
+      {loading && (
+        <div className="fullscreen-loading-overlay">
+          <div className="loading-content">
+            <div className="loading-spinner"></div>
+            <p>Registering your account...</p>
+          </div>
+        </div>
+      )}
       <div className="register-voter-content">
         <button className="modal-close" onClick={onClose}>&times;</button>
         <h2>Register as a Voter</h2>
