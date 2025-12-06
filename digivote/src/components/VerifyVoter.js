@@ -35,7 +35,7 @@ const VerifyVoter = ({ onClose }) => {
           type: 'success'
         });
       } else {
-        setAlert({ message: data.error || 'Verification failed', type: 'error' });
+        setAlert({ message: data.detail || data.error || 'Verification failed', type: 'error' });
       }
     } catch (error) {
       setAlert({ message: 'Error connecting to server', type: 'error' });

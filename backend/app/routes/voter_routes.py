@@ -36,12 +36,12 @@ def register_voter(data: VoterRegister, db: Session = Depends(get_db)):
     # Validate data
     validation = validate_voter_data(data.dict())
     if not validation['valid']:
-        raise HTTPException(status_code=400, detail={'error': 'Validation failed', 'details': validation['errors']})
+        raise HTTPException(status_code=400, detail='Validation failed: ' + ', '.join(validation['errors']))
     
     # Check if national ID already exists
     existing_voter = db.query(Voter).filter(Voter.national_id_number == data.nationalId).first()
     if existing_voter:
-        raise HTTPException(status_code=400, detail={'error': 'National ID already registered'})
+        raise HTTPException(status_code=400, detail='National ID already registered')
     
     # Create new voter
     new_voter = Voter(
@@ -75,11 +75,11 @@ def verify_voter(data: VoterVerify, db: Session = Depends(get_db)):
     voter = db.query(Voter).filter(Voter.national_id_number == data.idNumber).first()
     
     if not voter:
-        raise HTTPException(status_code=404, detail={'error': 'Voter not found'})
+        raise HTTPException(status_code=404, detail='Voter not found')
     
     # Check year of birth
     if voter.date_of_birth.year != int(data.yearOfBirth):
-        raise HTTPException(status_code=400, detail={'error': 'Invalid year of birth'})
+        raise HTTPException(status_code=400, detail='Invalid year of birth')
     
     # Get full name as tuple
     first_name, last_name = voter.get_full_name()
@@ -100,15 +100,15 @@ def login_voter(data: VoterLogin, db: Session = Depends(get_db)):
     voter = db.query(Voter).filter(Voter.national_id_number == data.nationalId).first()
     
     if not voter:
-        raise HTTPException(status_code=401, detail={'error': 'Invalid credentials'})
+        raise HTTPException(status_code=401, detail='Invalid credentials')
     
     # Verify password
     if not verify_password(voter.password_hash, data.password):
-        raise HTTPException(status_code=401, detail={'error': 'Invalid credentials'})
+        raise HTTPException(status_code=401, detail='Invalid credentials')
     
     # Check if voter has already voted
     if voter.has_voted:
-        raise HTTPException(status_code=403, detail={'error': 'You have already voted in this election.'})
+        raise HTTPException(status_code=403, detail='You have already voted in this election.')
     
     return {
         'message': 'Login successful',
@@ -126,14 +126,14 @@ def get_all_voters(db: Session = Depends(get_db)):
 def get_voter(voter_id: int, db: Session = Depends(get_db)):
     voter = db.query(Voter).filter(Voter.id == voter_id).first()
     if not voter:
-        raise HTTPException(status_code=404, detail={'error': 'Voter not found'})
+        raise HTTPException(status_code=404, detail='Voter not found')
     return voter.to_dict()
 
 @router.put('/voters/{voter_id}/mark-voted')
 def mark_voter_as_voted(voter_id: int, db: Session = Depends(get_db)):
     voter = db.query(Voter).filter(Voter.id == voter_id).first()
     if not voter:
-        raise HTTPException(status_code=404, detail={'error': 'Voter not found'})
+        raise HTTPException(status_code=404, detail='Voter not found')
     
     voter.has_voted = True
     db.commit()

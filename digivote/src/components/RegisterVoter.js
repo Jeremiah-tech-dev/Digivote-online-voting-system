@@ -46,7 +46,7 @@ const RegisterVoter = ({ onClose }) => {
         setAlert({ message: 'Registration successful!\nYou can now login to vote.', type: 'success' });
         setTimeout(() => onClose(), 2000);
       } else {
-        setAlert({ message: data.error || 'Registration failed', type: 'error' });
+        setAlert({ message: data.detail || data.error || 'Registration failed', type: 'error' });
       }
     } catch (error) {
       setAlert({ message: 'Error connecting to server', type: 'error' });

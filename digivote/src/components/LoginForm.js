@@ -32,7 +32,7 @@ const LoginForm = ({ onClose, onLoginSuccess, onRegisterClick }) => {
         setAlert({ message: 'Login successful!', type: 'success' });
         setTimeout(() => onLoginSuccess(data.voter), 1500);
       } else {
-        setAlert({ message: data.error || 'Login failed', type: 'error' });
+        setAlert({ message: data.detail || data.error || 'Login failed', type: 'error' });
       }
     } catch (error) {
       setAlert({ message: 'Error connecting to server', type: 'error' });
