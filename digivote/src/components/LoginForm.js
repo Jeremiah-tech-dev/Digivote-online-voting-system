@@ -9,6 +9,7 @@ const LoginForm = ({ onClose, onLoginSuccess, onRegisterClick }) => {
     password: ''
   });
   const [alert, setAlert] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -16,6 +17,7 @@ const LoginForm = ({ onClose, onLoginSuccess, onRegisterClick }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     
     try {
       const response = await fetch(`${API_URL}/api/login`, {
@@ -35,6 +37,8 @@ const LoginForm = ({ onClose, onLoginSuccess, onRegisterClick }) => {
     } catch (error) {
       setAlert({ message: 'Error connecting to server', type: 'error' });
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -71,7 +75,9 @@ const LoginForm = ({ onClose, onLoginSuccess, onRegisterClick }) => {
             />
           </div>
 
-          <button type="submit" className="login-btn">Login</button>
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? <span className="spinner"></span> : 'Login'}
+          </button>
         </form>
 
         <div className="login-footer">

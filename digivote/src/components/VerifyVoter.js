@@ -10,6 +10,7 @@ const VerifyVoter = ({ onClose }) => {
     yearOfBirth: ''
   });
   const [alert, setAlert] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -17,6 +18,7 @@ const VerifyVoter = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     
     try {
       const response = await fetch(`${API_URL}/api/verify`, {
@@ -38,6 +40,8 @@ const VerifyVoter = ({ onClose }) => {
     } catch (error) {
       setAlert({ message: 'Error connecting to server', type: 'error' });
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -97,7 +101,9 @@ const VerifyVoter = ({ onClose }) => {
               <label htmlFor="robot">I'm not a robot</label>
             </div>
 
-            <button type="submit" className="verify-btn">Verify Now</button>
+            <button type="submit" className="verify-btn" disabled={loading}>
+              {loading ? <span className="spinner"></span> : 'Verify Now'}
+            </button>
           </form>
         </div>
       </div>

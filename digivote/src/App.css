@@ -2015,3 +2015,23 @@
 .admin-login-btn:hover {
   background: #c0392b;
 }
+/* --- SPINNER ANIMATION --- */
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
