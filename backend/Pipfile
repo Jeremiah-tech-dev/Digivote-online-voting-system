@@ -9,6 +9,7 @@ uvicorn = {extras = ["standard"], version = "*"}
 sqlalchemy = "*"
 pydantic = "*"
 python-multipart = "*"
+passlib = {extras = ["bcrypt"], version = "*"}
 
 [dev-packages]
 
