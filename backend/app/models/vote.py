@@ -1,14 +1,21 @@
-from app import db
+from sqlalchemy import Column, Integer, ForeignKey, DateTime
+from sqlalchemy.orm import relationship
 from datetime import datetime
+from app.database import Base
 
-class Vote(db.Model):
+class Vote(Base):
     __tablename__ = 'votes'
     
-    id = db.Column(db.Integer, primary_key=True)
-    voter_id = db.Column(db.Integer, db.ForeignKey('voters.id'), nullable=False)
-    election_id = db.Column(db.Integer, db.ForeignKey('elections.id'), nullable=False)
-    candidate_id = db.Column(db.Integer, db.ForeignKey('candidates.id'), nullable=False)
-    voted_at = db.Column(db.DateTime, default=datetime.utcnow)
+    id = Column(Integer, primary_key=True, index=True)
+    voter_id = Column(Integer, ForeignKey('voters.id'), nullable=False)
+    election_id = Column(Integer, ForeignKey('elections.id'), nullable=False)
+    candidate_id = Column(Integer, ForeignKey('candidates.id'), nullable=False)
+    voted_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    voter = relationship('Voter', back_populates='votes')
+    election = relationship('Election', back_populates='votes')
+    candidate = relationship('Candidate', back_populates='votes')
     
     def to_dict(self):
         """Convert vote to dictionary"""

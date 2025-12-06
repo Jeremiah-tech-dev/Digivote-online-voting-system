@@ -1,14 +1,15 @@
-from flask import Blueprint, jsonify
-from app import db
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from sqlalchemy import func, case
+from app.database import get_db
 from app.models.vote import Vote
 from app.models.election import Candidate
-from sqlalchemy import func, case
 
-bp = Blueprint('results', __name__, url_prefix='/api')
+router = APIRouter()
 
-@bp.route('/results', methods=['GET'])
-def get_results():
-    results = db.session.query(
+@router.get('/results')
+def get_results(db: Session = Depends(get_db)):
+    results = db.query(
         Candidate.first_name,
         Candidate.last_name,
         Candidate.party,
@@ -37,4 +38,4 @@ def get_results():
         'vote_count': r.vote_count
     } for r in results]
     
-    return jsonify({'results': results_list}), 200
+    return {'results': results_list}

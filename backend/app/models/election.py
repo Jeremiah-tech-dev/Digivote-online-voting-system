@@ -1,21 +1,23 @@
-from app import db
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 from datetime import datetime
+from app.database import Base
 
-class Election(db.Model):
+class Election(Base):
     __tablename__ = 'elections'
     
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    description = db.Column(db.Text)
-    election_type = db.Column(db.String(50), nullable=False)  # Presidential, Parliamentary, County
-    start_date = db.Column(db.DateTime, nullable=False)
-    end_date = db.Column(db.DateTime, nullable=False)
-    status = db.Column(db.String(20), default='upcoming')  # upcoming, active, completed
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(200), nullable=False)
+    description = Column(Text)
+    election_type = Column(String(50), nullable=False)
+    start_date = Column(DateTime, nullable=False)
+    end_date = Column(DateTime, nullable=False)
+    status = Column(String(20), default='upcoming')
+    created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationships
-    candidates = db.relationship('Candidate', backref='election', lazy=True, cascade='all, delete-orphan')
-    votes = db.relationship('Vote', backref='election', lazy=True, cascade='all, delete-orphan')
+    candidates = relationship('Candidate', back_populates='election', cascade='all, delete-orphan')
+    votes = relationship('Vote', back_populates='election', cascade='all, delete-orphan')
     
     def to_dict(self):
         """Convert election to dictionary"""
@@ -34,20 +36,21 @@ class Election(db.Model):
         return [f"{c.first_name} {c.last_name}" for c in self.candidates]
 
 
-class Candidate(db.Model):
+class Candidate(Base):
     __tablename__ = 'candidates'
     
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(100), nullable=False)
-    last_name = db.Column(db.String(100), nullable=False)
-    party = db.Column(db.String(100), nullable=False)
-    position = db.Column(db.String(100), nullable=False)
-    county = db.Column(db.String(100))
-    election_id = db.Column(db.Integer, db.ForeignKey('elections.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    id = Column(Integer, primary_key=True, index=True)
+    first_name = Column(String(100), nullable=False)
+    last_name = Column(String(100), nullable=False)
+    party = Column(String(100), nullable=False)
+    position = Column(String(100), nullable=False)
+    county = Column(String(100))
+    election_id = Column(Integer, ForeignKey('elections.id'), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
     
-    # Relationship
-    votes = db.relationship('Vote', backref='candidate', lazy=True)
+    # Relationships
+    election = relationship('Election', back_populates='candidates')
+    votes = relationship('Vote', back_populates='candidate')
     
     def to_dict(self):
         """Convert candidate to dictionary"""

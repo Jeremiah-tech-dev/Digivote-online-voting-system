@@ -1,6 +1,10 @@
 # Digivote Online Voting System
 
-A secure and modern online voting platform for Kenya's electoral process, built with React and Flask.
+A secure and modern online voting platform for Kenya's electoral process, built with React and FastAPI.
+
+## Live Demo
+
+🔗 [https://digivote-online-voting-system.vercel.app/](https://digivote-online-voting-system.vercel.app/)
 
 ## Features
 
@@ -31,10 +35,12 @@ A secure and modern online voting platform for Kenya's electoral process, built 
 - CSS3
 
 ### Backend
-- (Python)
+- FastAPI (Python)
 - SQLAlchemy ORM
 - SQLite Database
-- python-CORS
+- CORS Middleware
+- Pydantic for data validation
+- Uvicorn ASGI server
 
 ## Installation
 
@@ -49,10 +55,12 @@ A secure and modern online voting platform for Kenya's electoral process, built 
 cd backend
 pipenv install
 pipenv run python seed_candidates.py
-pipenv run python run.py
+pipenv run uvicorn main:app --reload --port 5000
 ```
 
 Backend runs on `http://localhost:5000`
+
+API Documentation available at `http://localhost:5000/docs`
 
 ### Frontend Setup
 
@@ -84,6 +92,12 @@ Frontend runs on `http://localhost:3000`
    - Password: `admin2025`
 3. View election results dashboard
 
+## API Documentation
+
+FastAPI provides automatic interactive API documentation:
+- Swagger UI: `http://localhost:5000/docs`
+- ReDoc: `http://localhost:5000/redoc`
+
 ## Database Schema
 
 ### Voters Table
@@ -103,13 +117,19 @@ Frontend runs on `http://localhost:3000`
 - Election ID
 - Timestamp
 
+### Elections Table
+- Election details (title, description, type)
+- Start and end dates
+- Status (upcoming, active, completed)
+
 ## Security Features
 
 - Password hashing for voter accounts
 - One vote per voter enforcement
 - Admin authentication
 - CORS protection
-- Session management
+- Input validation with Pydantic
+- SQL injection prevention with SQLAlchemy ORM
 
 ## Project Structure
 
@@ -118,11 +138,24 @@ Digivote-online-voting-system/
 ├── backend/
 │   ├── app/
 │   │   ├── models/
+│   │   │   ├── voter.py
+│   │   │   ├── election.py
+│   │   │   └── vote.py
 │   │   ├── routes/
-│   │   └── utils/
+│   │   │   ├── voter_routes.py
+│   │   │   ├── election_routes.py
+│   │   │   ├── vote_routes.py
+│   │   │   └── results_routes.py
+│   │   ├── utils/
+│   │   │   └── helpers.py
+│   │   ├── database.py
+│   │   └── __init__.py
 │   ├── instance/
+│   │   └── voters.db
+│   ├── Pipfile
+│   ├── requirements.txt
 │   ├── seed_candidates.py
-│   └── run.py
+│   └── main.py
 ├── digivote/
 │   ├── public/
 │   ├── src/

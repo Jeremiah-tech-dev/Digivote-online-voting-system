@@ -1,29 +1,31 @@
-from app import db
+from sqlalchemy import Column, Integer, String, Date, Boolean, DateTime
+from sqlalchemy.orm import relationship
 from datetime import datetime
+from app.database import Base
 
-class Voter(db.Model):
+class Voter(Base):
     __tablename__ = 'voters'
     
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(100), nullable=False)
-    last_name = db.Column(db.String(100), nullable=False)
-    national_id_number = db.Column(db.String(50), unique=True, nullable=False)
-    date_of_birth = db.Column(db.Date, nullable=False)
-    phone_number = db.Column(db.String(20), nullable=False)
-    email = db.Column(db.String(120), nullable=False)
-    gender = db.Column(db.String(10), nullable=False)
-    physical_address = db.Column(db.String(255))
-    county = db.Column(db.String(100), nullable=False)
-    constituency = db.Column(db.String(100), nullable=False)
-    ward = db.Column(db.String(100), nullable=False)
-    polling_station = db.Column(db.String(100), nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
-    has_voted = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id = Column(Integer, primary_key=True, index=True)
+    first_name = Column(String(100), nullable=False)
+    last_name = Column(String(100), nullable=False)
+    national_id_number = Column(String(50), unique=True, nullable=False, index=True)
+    date_of_birth = Column(Date, nullable=False)
+    phone_number = Column(String(20), nullable=False)
+    email = Column(String(120), nullable=False)
+    gender = Column(String(10), nullable=False)
+    physical_address = Column(String(255))
+    county = Column(String(100), nullable=False)
+    constituency = Column(String(100), nullable=False)
+    ward = Column(String(100), nullable=False)
+    polling_station = Column(String(100), nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    has_voted = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationship
-    votes = db.relationship('Vote', backref='voter', lazy=True, cascade='all, delete-orphan')
+    votes = relationship('Vote', back_populates='voter', cascade='all, delete-orphan')
     
     def to_dict(self):
         """Convert voter object to dictionary"""

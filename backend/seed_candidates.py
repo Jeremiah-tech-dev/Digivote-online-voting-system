@@ -1,9 +1,30 @@
-from app import create_app, db
-from app.models.election import Candidate
+from app.database import SessionLocal, engine, Base
+from app.models.voter import Voter
+from app.models.election import Candidate, Election
+from app.models.vote import Vote
+from datetime import datetime
 
-app = create_app()
+# Create tables
+Base.metadata.create_all(bind=engine)
 
-with app.app_context():
+db = SessionLocal()
+
+try:
+    # Create election if not exists
+    election = db.query(Election).filter(Election.id == 1).first()
+    if not election:
+        election = Election(
+            id=1,
+            title="Kenya General Election 2027",
+            description="National and County Elections",
+            election_type="General",
+            start_date=datetime(2027, 8, 9),
+            end_date=datetime(2027, 8, 9),
+            status="active"
+        )
+        db.add(election)
+        db.commit()
+    
     # Presidential Candidates
     candidates = [
         # Presidential
@@ -56,8 +77,13 @@ with app.app_context():
     ]
     
     for candidate_data in candidates:
-        candidate = Candidate(**candidate_data)
-        db.session.add(candidate)
+        existing = db.query(Candidate).filter(Candidate.id == candidate_data['id']).first()
+        if not existing:
+            candidate = Candidate(**candidate_data)
+            db.add(candidate)
     
-    db.session.commit()
+    db.commit()
     print("All candidates added successfully!")
+    
+finally:
+    db.close()

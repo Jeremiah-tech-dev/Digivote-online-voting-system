@@ -1,21 +1,25 @@
-from flask import Blueprint, request, jsonify
-from app import db
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app.database import get_db
 from app.models.vote import Vote
-from datetime import datetime
+from pydantic import BaseModel
 
-bp = Blueprint('votes', __name__, url_prefix='/api')
+router = APIRouter()
 
-@bp.route('/votes', methods=['POST'])
-def cast_vote():
-    data = request.json
-    
+class VoteCreate(BaseModel):
+    voter_id: int
+    candidate_id: int
+    election_id: int = 1
+
+@router.post('/votes')
+def cast_vote(data: VoteCreate, db: Session = Depends(get_db)):
     new_vote = Vote(
-        voter_id=data['voter_id'],
-        candidate_id=data['candidate_id'],
-        election_id=1
+        voter_id=data.voter_id,
+        candidate_id=data.candidate_id,
+        election_id=data.election_id
     )
     
-    db.session.add(new_vote)
-    db.session.commit()
+    db.add(new_vote)
+    db.commit()
     
-    return jsonify({'message': 'Vote cast successfully'}), 201
+    return {'message': 'Vote cast successfully'}
