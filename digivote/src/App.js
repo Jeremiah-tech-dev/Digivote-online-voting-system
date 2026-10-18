@@ -13,6 +13,7 @@ import ReceiptCheck from './components/ReceiptCheck';
 import AdminLogin from './components/AdminLogin';
 import VotingDashboard from './components/VotingDashboard';
 import { useAuth } from './auth';
+import { useReloadOnNewRelease } from './staleBuild';
 import './App.css';
 
 // Loaded only when an admin opens it, so voters don't download the charting library
@@ -123,6 +124,7 @@ const AdminPage = () => {
 };
 
 function App() {
+  useReloadOnNewRelease();
   return (
     <Routes>
       <Route path="/" element={<HomeLayout />}>
