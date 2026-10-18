@@ -4,6 +4,7 @@ import { LinesChart, EffectScatterChart } from 'echarts/charts';
 import { GeoComponent, TooltipComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { CORRIDOR, FIVE_CITIES } from './cityData';
+import { disposeChart, resizeChart } from '../../echartsLifecycle';
 
 echarts.use([LinesChart, EffectScatterChart, GeoComponent, TooltipComponent, CanvasRenderer]);
 
@@ -195,7 +196,7 @@ const KenyaMap = ({ active, showRoutes, onSelectCity }) => {
         }
 
         if (typeof ResizeObserver !== 'undefined') {
-          observer = new ResizeObserver(() => chart.resize());
+          observer = new ResizeObserver(() => resizeChart(chart, containerRef.current));
           observer.observe(containerRef.current);
         }
         setReady(true);
@@ -208,7 +209,7 @@ const KenyaMap = ({ active, showRoutes, onSelectCity }) => {
       disposed = true;
       clearInterval(pulseTimer);
       if (observer) observer.disconnect();
-      if (chartRef.current) chartRef.current.dispose();
+      disposeChart(chartRef.current);
       chartRef.current = null;
     };
   }, []);

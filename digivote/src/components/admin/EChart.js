@@ -4,6 +4,7 @@ import * as echarts from 'echarts/core';
 import { BarChart, PieChart, GaugeChart, LineChart } from 'echarts/charts';
 import { GridComponent, TooltipComponent, LegendComponent, GraphicComponent, AriaComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
+import { disposeChart, resizeChart } from '../../echartsLifecycle';
 
 echarts.use([
   BarChart, PieChart, GaugeChart, LineChart,
@@ -23,12 +24,12 @@ const EChart = ({ option, height = 300, ariaLabel }) => {
 
     let observer;
     if (typeof ResizeObserver !== 'undefined') {
-      observer = new ResizeObserver(() => chart.resize());
+      observer = new ResizeObserver(() => resizeChart(chart, containerRef.current));
       observer.observe(containerRef.current);
     }
     return () => {
       if (observer) observer.disconnect();
-      chart.dispose();
+      disposeChart(chart);
       chartRef.current = null;
     };
   }, []);

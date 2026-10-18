@@ -23,7 +23,7 @@ CANDIDATES = [
     {'first_name': 'Johnson', 'last_name': 'Sakaja', 'party': 'UDA', 'position': 'Governor', 'county': 'Nairobi', 'election_id': 1,
      'image_url': 'https://i.pinimg.com/1200x/59/2b/be/592bbe7301b5ddafea58c6a8b5a8e1b1.jpg', 'party_logo_url': UDA_LOGO},
     {'first_name': 'Polycarp', 'last_name': 'Igathe', 'party': 'Jubilee', 'position': 'Governor', 'county': 'Nairobi', 'election_id': 1,
-     'image_url': 'https://media.licdn.com/dms/image/v2/D4D03AQGxiPQ8q2Bykg/profile-displayphoto-shrink_200_200/B4DZWA4w55GkAY-/0/1741624120104?e=2147483647&v=beta&t=rxSPyLN74oCot4EBXAd8U9oang-1Ue7DnMcvn5hkEgs', 'party_logo_url': JUBILEE_LOGO},
+     'image_url': None, 'party_logo_url': JUBILEE_LOGO},
 
     # Nairobi Senators
     {'first_name': 'Edwin', 'last_name': 'Sifuna', 'party': 'ODM', 'position': 'Senator', 'county': 'Nairobi', 'election_id': 1,
