@@ -221,7 +221,7 @@ const VotingDashboard = ({ onClose, onFinished, voter, token }) => {
                         <h4>{position} - {county} City</h4>
                         <p>Vote for {county} City {position}</p>
                       </div>
-                      <img src={COUNTY_IMAGES[county] || '/flag.png'} alt={county} className="city-image mombasa-image" />
+                      <img src={COUNTY_IMAGES[county] || '/flag.webp'} alt={county} className="city-image mombasa-image" />
                     </div>
                   ))}
                 </div>
@@ -248,7 +248,7 @@ const VotingDashboard = ({ onClose, onFinished, voter, token }) => {
                   .map(([title, list]) => (
                     <div key={title} className="candidates-section">
                       <h3 className="candidates-position-title">{county} City - {title}</h3>
-                      <img src={COUNTY_IMAGES[county] || '/flag.png'} alt={county} className="position-logo" />
+                      <img src={COUNTY_IMAGES[county] || '/flag.webp'} alt={county} className="position-logo" />
                       <CandidateGrid candidates={list} />
                     </div>
                   ))}

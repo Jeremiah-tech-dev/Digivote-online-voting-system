@@ -10,7 +10,7 @@ const Hero = () => {
       
       {/* Flag Image */}
       <div className="flag-decoration">
-        <img src="/flag.png" alt="US Flag" className="waving-flag" />
+        <img src="/flag.webp" alt="Kenyan flag" className="waving-flag" width="300" height="217" />
       </div>
       
       {/* Left Content */}
@@ -53,7 +53,7 @@ const Hero = () => {
 
       {/* Center Visual (Statue) */}
       <div className="hero-visual">
-        <img src="/statue.png" alt="Statue of Liberty" className="statue-img" />
+        <img src="/statue.webp" alt="Statue of Liberty" className="statue-img" />
       </div>
 
       {/* Right Geometric Shapes */}
