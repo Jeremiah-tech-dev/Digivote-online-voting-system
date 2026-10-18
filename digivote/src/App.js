@@ -2,6 +2,7 @@ import React, { lazy, startTransition, Suspense } from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import Hero from './Hero';
+import CitiesSection from './components/cities/CitiesSection';
 import VotingRights from './VotingRights';
 import ElectionSecurity from './ElectionSecurity';
 import Footer from './Footer';
@@ -31,6 +32,7 @@ const HomeLayout = () => (
   <div className="App">
     <Navbar />
     <Hero />
+    <CitiesSection />
     <VotingRights />
     <ElectionSecurity />
     <Footer />

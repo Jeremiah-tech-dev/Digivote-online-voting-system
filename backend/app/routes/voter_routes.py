@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from app import config
@@ -7,7 +8,7 @@ from app.database import get_db
 from app.models.audit_log import record_audit
 from app.models.voter import Voter
 from app.schemas import VoterLogin, VoterRegister, VoterVerify
-from app.utils.helpers import hash_password, verify_password
+from app.utils.helpers import VALID_COUNTIES, hash_password, verify_password
 
 router = APIRouter()
 
@@ -101,7 +102,13 @@ def get_public_stats(db: Session = Depends(get_db)):
     """Aggregate turnout numbers - safe to show publicly"""
     total_voters = db.query(Voter).count()
     voters_voted = db.query(Voter).filter(Voter.has_voted.is_(True)).count()
-    return {'total_voters': total_voters, 'voters_voted': voters_voted}
+    # Registered voters per county (counts only), shown on the home page map
+    by_county = dict(db.query(Voter.county, func.count(Voter.id)).group_by(Voter.county).all())
+    return {
+        'total_voters': total_voters,
+        'voters_voted': voters_voted,
+        'registered_by_county': {county: by_county.get(county, 0) for county in VALID_COUNTIES}
+    }
 
 @router.get('/voters')
 def get_all_voters(db: Session = Depends(get_db), admin=Depends(get_current_admin)):

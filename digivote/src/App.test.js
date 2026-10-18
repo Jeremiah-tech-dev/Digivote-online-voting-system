@@ -61,3 +61,19 @@ test('logging out of the voting portal returns to the home page', async () => {
   expect(screen.queryByRole('heading', { name: /login to vote/i })).not.toBeInTheDocument();
   expect(JSON.parse(sessionStorage.getItem('digivote-session')).voter).toBeNull();
 });
+
+test('the home page explains that only the five cities can vote', async () => {
+  global.fetch = jest.fn(() => jsonResponse({
+    total_voters: 3,
+    voters_voted: 1,
+    registered_by_county: { Nairobi: 2, Mombasa: 0, Kisumu: 1, Nakuru: 0, Eldoret: 0 }
+  }));
+  renderWithProviders(<App />);
+
+  expect(screen.getByRole('heading', { name: /open only to voters in kenya's five cities/i })).toBeInTheDocument();
+  for (const city of ['Nairobi', 'Mombasa', 'Nakuru', 'Eldoret', 'Kisumu']) {
+    expect(screen.getByRole('button', { name: new RegExp(city) })).toBeInTheDocument();
+  }
+  expect(await screen.findByText(/2 registered on Digivote/)).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /register to vote/i })).toHaveAttribute('href', '/register');
+});

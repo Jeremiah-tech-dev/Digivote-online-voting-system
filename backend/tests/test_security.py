@@ -120,4 +120,8 @@ def test_voter_list_requires_admin(client):
 
 def test_public_stats_are_aggregate_only(client):
     data = client.get("/api/stats").json()
-    assert set(data) == {"total_voters", "voters_voted"}
+    assert set(data) == {"total_voters", "voters_voted", "registered_by_county"}
+    counties = data["registered_by_county"]
+    assert set(counties) == {"Nairobi", "Mombasa", "Kisumu", "Nakuru", "Eldoret"}
+    assert all(isinstance(n, int) for n in counties.values())
+    assert sum(counties.values()) == data["total_voters"]

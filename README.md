@@ -29,6 +29,7 @@ Run `docker compose down -v` to delete the database and start again.
 ## Features
 
 ### Voter Features
+- **Five Cities Map**: an animated ECharts map on the home page shows the five city counties where online voting is open (Nairobi, Mombasa, Kisumu, Nakuru, Eldoret), with 2019 census populations and live registration counts
 - **Voter Registration**: Register with national ID, personal details, and location information
 - **Voter Verification**: Verify voting details using ID number and year of birth
 - **Secure Login**: Password-protected voter authentication
