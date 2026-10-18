@@ -1,16 +1,23 @@
 import React, { useState } from 'react';
+import { apiRequest } from '../api';
 import '../App.css';
 
 const AdminLogin = ({ onClose, onLoginSuccess }) => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (credentials.username === 'admin' && credentials.password === 'admin2025') {
-      onLoginSuccess();
-    } else {
-      setError('Invalid username or password');
+    setError('');
+    setLoading(true);
+    try {
+      const data = await apiRequest('/admin/login', { method: 'POST', body: credentials });
+      onLoginSuccess(data.access_token);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,7 +47,9 @@ const AdminLogin = ({ onClose, onLoginSuccess }) => {
             />
           </div>
           {error && <p className="admin-error">{error}</p>}
-          <button type="submit" className="admin-login-btn">Login</button>
+          <button type="submit" className="admin-login-btn" disabled={loading}>
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
         </form>
       </div>
     </div>

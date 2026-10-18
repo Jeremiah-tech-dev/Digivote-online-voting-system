@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func, case
+from app.auth import get_current_admin
 from app.database import get_db
 from app.models.vote import Vote
 from app.models.election import Candidate
@@ -8,7 +9,8 @@ from app.models.election import Candidate
 router = APIRouter()
 
 @router.get('/results')
-def get_results(db: Session = Depends(get_db)):
+def get_results(db: Session = Depends(get_db), admin=Depends(get_current_admin)):
+    """Vote totals for every candidate - admin only"""
     results = db.query(
         Candidate.first_name,
         Candidate.last_name,

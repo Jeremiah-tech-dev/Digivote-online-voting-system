@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from app.auth import get_current_admin
 from app.database import get_db
 from app.models.election import Election, Candidate
 from app.models.vote import Vote
@@ -24,8 +25,8 @@ def get_candidates(election_id: int, db: Session = Depends(get_db)):
     return {'candidates': candidates_list}
 
 @router.get('/elections/{election_id}/results')
-def get_results(election_id: int, db: Session = Depends(get_db)):
-    """Get election results - uses dict and list"""
+def get_results(election_id: int, db: Session = Depends(get_db), admin=Depends(get_current_admin)):
+    """Get election results - uses dict and list (admin only)"""
     election = db.query(Election).filter(Election.id == election_id).first()
     if not election:
         raise HTTPException(status_code=404, detail="Election not found")

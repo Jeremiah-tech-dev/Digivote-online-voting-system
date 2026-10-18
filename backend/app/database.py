@@ -1,12 +1,15 @@
+import os
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
+from app.config import DATABASE_URL, DEFAULT_SQLITE_PATH
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./instance/voters.db"
+if DATABASE_URL.startswith("sqlite"):
+    os.makedirs(os.path.dirname(DEFAULT_SQLITE_PATH), exist_ok=True)
+    connect_args = {"check_same_thread": False}
+else:
+    connect_args = {}
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

@@ -10,8 +10,16 @@ KENYAN_COUNTIES = {
     'nakuru': ['Nakuru Town East', 'Nakuru Town West', 'Gilgil', 'Naivasha', 'Molo']
 }
 
+# Counties that have candidates in this election (must match seed data)
+VALID_COUNTIES = ('Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret')
+
+# Positions on the ballot, in voting order
+BALLOT_POSITIONS = ('Presidential', 'Governor', 'Senator')
+
 # List of valid genders
 VALID_GENDERS = ['male', 'female', 'other']
+
+MINIMUM_VOTING_AGE = 18
 
 # Tuple of election types
 ELECTION_TYPES = ('Presidential', 'Parliamentary', 'County', 'Senatorial', 'Gubernatorial')
@@ -24,20 +32,10 @@ def verify_password(password_hash, password):
     """Verify a password against its hash"""
     return pwd_context.verify(password, password_hash)
 
-def validate_voter_data(data):
-    """Validate voter registration data using dict"""
-    required_fields = [
-        'firstName', 'lastName', 'nationalId', 'dateOfBirth',
-        'phoneNumber', 'email', 'gender', 'county', 'constituency',
-        'ward', 'pollingStation', 'password'
-    ]
-    
-    errors = []
-    for field in required_fields:
-        if field not in data or not data[field]:
-            errors.append(f"{field} is required")
-    
-    return {'valid': len(errors) == 0, 'errors': errors}
+def calculate_age(date_of_birth, today):
+    """Age in whole years on the given day"""
+    had_birthday = (today.month, today.day) >= (date_of_birth.month, date_of_birth.day)
+    return today.year - date_of_birth.year - (0 if had_birthday else 1)
 
 def get_voter_location_tuple(voter):
     """Return voter location as tuple"""

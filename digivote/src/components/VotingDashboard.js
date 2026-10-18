@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { FaChartBar, FaVoteYea, FaUsers, FaCheckCircle, FaTachometerAlt, FaClipboardList, FaUserFriends, FaBriefcase, FaUserTie } from 'react-icons/fa';
+import { FaVoteYea, FaUsers, FaCheckCircle, FaTachometerAlt, FaClipboardList, FaBriefcase, FaUserTie } from 'react-icons/fa';
 import Footer from '../Footer';
 import VotingPopup from './VotingPopup';
-import { API_URL } from '../config';
+import { apiRequest } from '../api';
 import '../App.css';
 
-const VotingDashboard = ({ onClose, voterId }) => {
+const VotingDashboard = ({ onClose, voter, token }) => {
   const [activeMenu, setActiveMenu] = useState('dashboard');
   const [showVotingPopup, setShowVotingPopup] = useState(false);
   const [showConfirmAlert, setShowConfirmAlert] = useState(false);
@@ -18,33 +18,31 @@ const VotingDashboard = ({ onClose, voterId }) => {
   });
 
   useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await apiRequest('/stats');
+        setStats(prev => ({
+          ...prev,
+          totalVoters: data.total_voters,
+          votersVoted: data.voters_voted
+        }));
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      }
+    };
+
+    const checkVotingStatus = async () => {
+      try {
+        const data = await apiRequest('/me', { token });
+        setHasVoted(data.has_voted === true);
+      } catch (error) {
+        console.error('Error checking voting status:', error);
+      }
+    };
+
     fetchStats();
     checkVotingStatus();
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      const votersRes = await fetch(`${API_URL}/api/voters`);
-      const votersData = await votersRes.json();
-      
-      setStats(prev => ({
-        ...prev,
-        totalVoters: votersData.count
-      }));
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    }
-  };
-
-  const checkVotingStatus = async () => {
-    try {
-      const response = await fetch(`${API_URL}/api/voters/${voterId}`);
-      const data = await response.json();
-      setHasVoted(data.has_voted === 1);
-    } catch (error) {
-      console.error('Error checking voting status:', error);
-    }
-  };
+  }, [token]);
 
   const handleVoteNowClick = () => {
     if (hasVoted) {
@@ -505,7 +503,7 @@ const VotingDashboard = ({ onClose, voterId }) => {
           </div>
         </div>
       )}
-      {showVotingPopup && <VotingPopup onClose={() => setShowVotingPopup(false)} voterId={voterId} />}
+      {showVotingPopup && <VotingPopup onClose={() => setShowVotingPopup(false)} voterCounty={voter?.county} token={token} />}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import CustomAlert from './CustomAlert';
-import { API_URL } from '../config';
+import { apiRequest } from '../api';
 import '../App.css';
 
 const RegisterVoter = ({ onClose }) => {
@@ -36,23 +36,13 @@ const RegisterVoter = ({ onClose }) => {
     
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        setAlert({ message: 'Registration successful!\nYou can now login to vote.', type: 'success' });
-        setTimeout(() => onClose(), 2000);
-      } else {
-        setAlert({ message: data.detail || data.error || 'Registration failed', type: 'error' });
-      }
+      // confirmPassword is only checked here, the server doesn't need it
+      const { confirmPassword, ...registration } = formData;
+      await apiRequest('/register', { method: 'POST', body: registration });
+      setAlert({ message: 'Registration successful!\nYou can now login to vote.', type: 'success' });
+      setTimeout(() => onClose(), 2000);
     } catch (error) {
-      setAlert({ message: 'Error connecting to server', type: 'error' });
-      console.error(error);
+      setAlert({ message: error.message, type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -78,12 +68,12 @@ const RegisterVoter = ({ onClose }) => {
             <input type="text" name="lastName" placeholder="Last Name *" value={formData.lastName} onChange={handleChange} required />
           </div>
           
-          <input type="text" name="nationalId" placeholder="National ID Number *" value={formData.nationalId} onChange={handleChange} required />
+          <input type="text" name="nationalId" placeholder="National ID Number *" value={formData.nationalId} onChange={handleChange} pattern="[0-9]{7,8}" title="7 or 8 digits" inputMode="numeric" required />
           
           <input type="date" name="dateOfBirth" placeholder="Date of Birth *" value={formData.dateOfBirth} onChange={handleChange} required />
           
           <div className="form-row">
-            <input type="tel" name="phoneNumber" placeholder="Phone Number *" value={formData.phoneNumber} onChange={handleChange} required />
+            <input type="tel" name="phoneNumber" placeholder="Phone Number * (e.g. 0712345678)" value={formData.phoneNumber} onChange={handleChange} required />
             <input type="email" name="email" placeholder="Email Address *" value={formData.email} onChange={handleChange} required />
           </div>
           
@@ -114,7 +104,7 @@ const RegisterVoter = ({ onClose }) => {
           </div>
           
           <div className="form-row">
-            <input type="password" name="password" placeholder="Password *" value={formData.password} onChange={handleChange} required />
+            <input type="password" name="password" placeholder="Password * (min 8, letters and numbers)" value={formData.password} onChange={handleChange} minLength={8} required />
             <input type="password" name="confirmPassword" placeholder="Confirm Password *" value={formData.confirmPassword} onChange={handleChange} required />
           </div>
           

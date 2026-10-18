@@ -2035,56 +2035,54 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* --- CHRISTMAS BANNER --- */
-.christmas-banner {
-  background: linear-gradient(135deg, #a3e635 0%, #84cc16 50%, #a3e635 100%);
-  color: #1e3a8a;
-  padding: 8px 20px;
-  text-align: center;
+/* --- BALLOT REVIEW --- */
+.ballot-review-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px auto;
+  max-width: 520px;
+  text-align: left;
+}
+
+.ballot-review-list li {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  box-shadow: 0 2px 8px rgba(132, 204, 22, 0.3);
-  animation: festiveGlow 2s ease-in-out infinite;
-  max-width: 750px;
-  margin: 0 auto 0 52%;
-  transform: translateX(-50%);
-  border-radius: 0 0 12px 12px;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background: #f9fafb;
 }
 
-@keyframes festiveGlow {
-  0%, 100% { box-shadow: 0 2px 8px rgba(132, 204, 22, 0.3); }
-  50% { box-shadow: 0 4px 16px rgba(132, 204, 22, 0.6); }
+.ballot-review-list span {
+  color: #555;
 }
 
-.festive-text {
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+.ballot-review-actions {
+  display: flex;
+  gap: 12px;
+  max-width: 520px;
+  margin: 0 auto;
 }
 
-.festive-icon {
-  font-size: 1.5rem;
-  animation: bounce 1s ease-in-out infinite;
+.ballot-change-btn {
+  background: white;
+  color: #2e7d32;
+  border: 2px solid #2e7d32;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 10px;
 }
 
-.festive-icon:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.festive-icon:nth-child(4) {
-  animation-delay: 0.4s;
-}
-
-.festive-icon:nth-child(5) {
-  animation-delay: 0.6s;
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+.ballot-error {
+  color: #c62828;
+  font-weight: 600;
+  white-space: pre-line;
 }
 
 /* --- FULLSCREEN LOADING OVERLAY --- */

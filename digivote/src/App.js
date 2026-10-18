@@ -10,13 +10,6 @@ function App() {
   return (
     <div className="App">
       <Navbar />
-      <div className="christmas-banner">
-        <span className="festive-icon">🎄</span>
-        <span className="festive-text">Kila La Heri - Merry Christmas & Happy New Year!</span>
-        <span className="festive-icon">🎅</span>
-        <span className="festive-icon">🎁</span>
-        <span className="festive-icon">⭐</span>
-      </div>
       <Hero />
       <VotingRights />
       <ElectionSecurity />

@@ -1,26 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { API_URL } from '../config';
+import React, { useState } from 'react';
+import { apiRequest } from '../api';
 import '../App.css';
 
-const VotingPopup = ({ onClose, voterId }) => {
-  const [voterCounty, setVoterCounty] = useState('');
+const REVIEW_STEP = 3;
+
+const VotingPopup = ({ onClose, voterCounty, token }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [votedPositions, setVotedPositions] = useState([]);
+  // The voter's choice for each position: { presidential: {id, name}, governor: ..., senator: ... }
+  const [selections, setSelections] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-
-  useEffect(() => {
-    fetchVoterCounty();
-  }, []);
-
-  const fetchVoterCounty = async () => {
-    try {
-      const response = await fetch(`${API_URL}/api/voters/${voterId}`);
-      const data = await response.json();
-      setVoterCounty(data.county);
-    } catch (error) {
-      console.error('Error fetching voter county:', error);
-    }
-  };
 
   const candidatesData = {
     presidential: [
@@ -83,26 +73,31 @@ const VotingPopup = ({ onClose, voterId }) => {
     }
   };
 
-  const handleVoteForCandidate = async (position, candidateId, candidateName) => {
+  // Choosing a candidate only records the choice locally and moves to the next step.
+  // Nothing is sent to the server until the voter confirms the whole ballot.
+  const handleVoteForCandidate = (position, candidateId, candidateName) => {
+    setSelections(prev => ({ ...prev, [position]: { id: candidateId, name: candidateName } }));
+    setCurrentStep(prev => prev + 1);
+  };
+
+  const handleSubmitBallot = async () => {
+    setSubmitting(true);
+    setSubmitError('');
     try {
-      await fetch(`${API_URL}/api/votes`, {
+      await apiRequest('/votes', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ voter_id: voterId, candidate_id: candidateId })
+        token,
+        body: {
+          presidential_id: selections.presidential.id,
+          governor_id: selections.governor.id,
+          senator_id: selections.senator.id
+        }
       });
-      
-      setVotedPositions(prev => [...prev, position]);
-      
-      if (position === 'senator') {
-        await fetch(`${API_URL}/api/voters/${voterId}/mark-voted`, {
-          method: 'PUT'
-        });
-        setShowSuccessAlert(true);
-      } else {
-        setCurrentStep(prev => prev + 1);
-      }
+      setShowSuccessAlert(true);
     } catch (error) {
-      console.error('Error submitting vote:', error);
+      setSubmitError(error.message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -198,6 +193,35 @@ const VotingPopup = ({ onClose, voterId }) => {
                     </button>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {currentStep === REVIEW_STEP && (
+            <div className="voting-section">
+              <h3>Review Your Ballot</h3>
+              <p className="popup-subtitle">Your vote cannot be changed after you submit it.</p>
+              <ul className="ballot-review-list">
+                <li><span>President</span><strong>{selections.presidential?.name}</strong></li>
+                <li><span>{voterCounty} Governor</span><strong>{selections.governor?.name}</strong></li>
+                <li><span>{voterCounty} Senator</span><strong>{selections.senator?.name}</strong></li>
+              </ul>
+              {submitError && <p className="ballot-error">{submitError}</p>}
+              <div className="ballot-review-actions">
+                <button
+                  className="ballot-change-btn"
+                  onClick={() => setCurrentStep(0)}
+                  disabled={submitting}
+                >
+                  Change my choices
+                </button>
+                <button
+                  className="vote-candidate-btn"
+                  onClick={handleSubmitBallot}
+                  disabled={submitting}
+                >
+                  {submitting ? 'Submitting...' : 'Submit my ballot'}
+                </button>
               </div>
             </div>
           )}

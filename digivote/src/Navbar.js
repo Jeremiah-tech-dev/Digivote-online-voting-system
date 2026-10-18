@@ -22,6 +22,9 @@ const Navbar = () => {
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [loggedInVoter, setLoggedInVoter] = useState(null);
+  // Login tokens live only in memory: closing or refreshing the page logs the user out
+  const [voterToken, setVoterToken] = useState(null);
+  const [adminToken, setAdminToken] = useState(null);
 
   const openModal = (type) => {
     setModalContent(type);
@@ -181,8 +184,9 @@ const Navbar = () => {
       {showLoginForm && (
         <LoginForm 
           onClose={() => setShowLoginForm(false)}
-          onLoginSuccess={(voter) => {
+          onLoginSuccess={(voter, token) => {
             setLoggedInVoter(voter);
+            setVoterToken(token);
             setShowLoginForm(false);
             setShowVotingDashboard(true);
           }}
@@ -199,8 +203,10 @@ const Navbar = () => {
           onClose={() => {
             setShowVotingDashboard(false);
             setLoggedInVoter(null);
+            setVoterToken(null);
           }}
-          voterId={loggedInVoter?.id}
+          voter={loggedInVoter}
+          token={voterToken}
         />
       )}
       
@@ -208,7 +214,8 @@ const Navbar = () => {
       {showAdminLogin && (
         <AdminLogin 
           onClose={() => setShowAdminLogin(false)}
-          onLoginSuccess={() => {
+          onLoginSuccess={(token) => {
+            setAdminToken(token);
             setShowAdminLogin(false);
             setShowAdminDashboard(true);
           }}
@@ -216,7 +223,15 @@ const Navbar = () => {
       )}
       
       {/* Admin Dashboard */}
-      {showAdminDashboard && <AdminDashboard onClose={() => setShowAdminDashboard(false)} />}
+      {showAdminDashboard && (
+        <AdminDashboard
+          token={adminToken}
+          onClose={() => {
+            setShowAdminDashboard(false);
+            setAdminToken(null);
+          }}
+        />
+      )}
     </header>
   );
 };

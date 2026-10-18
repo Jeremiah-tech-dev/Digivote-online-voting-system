@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Footer from '../Footer';
 import CustomAlert from './CustomAlert';
-import { API_URL } from '../config';
+import { apiRequest } from '../api';
 import '../App.css';
 
 const VerifyVoter = ({ onClose }) => {
@@ -21,25 +21,13 @@ const VerifyVoter = ({ onClose }) => {
     setLoading(true);
     
     try {
-      const response = await fetch(`${API_URL}/api/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+      const data = await apiRequest('/verify', { method: 'POST', body: formData });
+      setAlert({
+        message: `Verification Successful!\n\nName: ${data.voter.name}\nCounty: ${data.voter.county}\nConstituency: ${data.voter.constituency}\nWard: ${data.voter.ward}\nPolling Station: ${data.voter.polling_station}`,
+        type: 'success'
       });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        setAlert({
-          message: `Verification Successful!\n\nName: ${data.voter.name}\nCounty: ${data.voter.county}\nConstituency: ${data.voter.constituency}\nWard: ${data.voter.ward}\nPolling Station: ${data.voter.polling_station}`,
-          type: 'success'
-        });
-      } else {
-        setAlert({ message: data.detail || data.error || 'Verification failed', type: 'error' });
-      }
     } catch (error) {
-      setAlert({ message: 'Error connecting to server', type: 'error' });
-      console.error(error);
+      setAlert({ message: error.message, type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -53,7 +41,7 @@ const VerifyVoter = ({ onClose }) => {
           <span>Voter Verification Portal</span>
         </div>
         <div className="verify-nav-links">
-          <a href="#" className="active">Home</a>
+          <a href="/" className="active">Home</a>
           <a href="https://www.iebc.or.ke">Our Website</a>
         </div>
         <button className="verify-close" onClick={onClose}>&times;</button>

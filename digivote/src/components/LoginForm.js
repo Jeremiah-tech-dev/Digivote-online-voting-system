@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import CustomAlert from './CustomAlert';
-import { API_URL } from '../config';
+import { apiRequest } from '../api';
 import '../App.css';
 
 const LoginForm = ({ onClose, onLoginSuccess, onRegisterClick }) => {
@@ -20,23 +20,11 @@ const LoginForm = ({ onClose, onLoginSuccess, onRegisterClick }) => {
     setLoading(true);
     
     try {
-      const response = await fetch(`${API_URL}/api/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        setAlert({ message: 'Login successful!', type: 'success' });
-        setTimeout(() => onLoginSuccess(data.voter), 1500);
-      } else {
-        setAlert({ message: data.detail || data.error || 'Login failed', type: 'error' });
-      }
+      const data = await apiRequest('/login', { method: 'POST', body: formData });
+      setAlert({ message: 'Login successful!', type: 'success' });
+      setTimeout(() => onLoginSuccess(data.voter, data.access_token), 1500);
     } catch (error) {
-      setAlert({ message: 'Error connecting to server', type: 'error' });
-      console.error(error);
+      setAlert({ message: error.message, type: 'error' });
     } finally {
       setLoading(false);
     }

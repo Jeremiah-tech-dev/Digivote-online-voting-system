@@ -1,23 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { API_URL } from '../config';
+import { apiRequest } from '../api';
 import '../App.css';
 
-const AdminDashboard = ({ onClose }) => {
+const AdminDashboard = ({ onClose, token }) => {
   const [results, setResults] = useState([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
+    const fetchResults = async () => {
+      try {
+        const data = await apiRequest('/results', { token });
+        setResults(data.results);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
     fetchResults();
-  }, []);
-
-  const fetchResults = async () => {
-    try {
-      const response = await fetch(`${API_URL}/api/results`);
-      const data = await response.json();
-      setResults(data.results);
-    } catch (error) {
-      console.error('Error fetching results:', error);
-    }
-  };
+  }, [token]);
 
   const totalVotes = results.reduce((sum, result) => sum + result.vote_count, 0);
 
@@ -27,12 +26,14 @@ const AdminDashboard = ({ onClose }) => {
         <h1>Election Results Dashboard</h1>
         <button className="admin-close-btn" onClick={onClose}>Close</button>
       </div>
-      
+
       <div className="admin-content">
+        {error && <p className="admin-error">{error}</p>}
+
         <div className="total-votes-banner">
           <h2>Total Votes Cast: {totalVotes}</h2>
         </div>
-        
+
         <table className="results-table">
           <thead>
             <tr>
