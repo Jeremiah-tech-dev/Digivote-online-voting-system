@@ -77,3 +77,16 @@ test('the home page explains that only the five cities can vote', async () => {
   expect(await screen.findByText(/2 registered on Digivote/)).toBeInTheDocument();
   expect(screen.getByRole('link', { name: /register to vote/i })).toHaveAttribute('href', '/register');
 });
+
+test('the hamburger button opens and closes the menu', () => {
+  renderWithProviders(<App />);
+  const menuButton = screen.getByRole('button', { name: /open menu/i });
+  expect(menuButton).toHaveAttribute('aria-expanded', 'false');
+
+  fireEvent.click(menuButton);
+  expect(screen.getByRole('button', { name: /close menu/i })).toHaveAttribute('aria-expanded', 'true');
+  expect(document.querySelector('.main-nav')).toHaveClass('nav-open');
+
+  fireEvent.click(screen.getByRole('button', { name: /close menu/i }));
+  expect(document.querySelector('.main-nav')).not.toHaveClass('nav-open');
+});

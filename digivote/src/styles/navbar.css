@@ -194,7 +194,39 @@
 }
 
 .menu-trigger {
-  border: none;
+  cursor: default;
+}
+
+/* Hamburger menu button: only shown on small screens */
+.hamburger-btn {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 2px solid #2c3e50;
+  border-radius: 8px;
+  background: #fff;
+  color: #2c3e50;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.hamburger-btn svg {
+  font-size: 18px;
+}
+
+.hamburger-btn:focus-visible {
+  outline: 2px solid #e74c3c;
+  outline-offset: 2px;
+}
+
+.main-nav.nav-open .hamburger-btn {
+  background: #2c3e50;
+  color: #fff;
 }
 
 /* Lay the bar out in a row (logo, links, ballot icon, Admin) so items can't overlap.
@@ -258,7 +290,7 @@
     height: auto;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 6px;
     padding: 8px 16px;
   }
 
@@ -273,23 +305,35 @@
   }
 
   .logo-img {
-    height: 30px;
+    height: 24px;
   }
 
   .admin-btn {
     position: static;
     transform: none;
     margin-left: auto;
-    padding: 8px 18px;
+    padding: 8px 12px;
     order: 2;
   }
 
   .menu-trigger {
     position: static;
     height: auto;
-    padding: 8px;
+    padding: 6px;
     border-radius: 6px;
     order: 3;
+  }
+
+  .menu-trigger svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .hamburger-btn {
+    display: inline-flex;
+    order: 4;
+    padding: 7px 10px;
+    gap: 6px;
   }
 
   .nav-links {
@@ -299,7 +343,7 @@
     width: 100%;
     flex-direction: column;
     gap: 0;
-    order: 4;
+    order: 5;
   }
 
   .main-nav.nav-open .nav-links {
@@ -320,5 +364,24 @@
 
   .dropdown-menu li {
     white-space: normal;
+  }
+}
+
+/* Very narrow phones: icon-only hamburger so everything fits on one row */
+@media (max-width: 380px) {
+  .hamburger-btn span {
+    display: none;
+  }
+}
+
+/* The smallest phones (about 320px wide) */
+@media (max-width: 340px) {
+  .logo-img {
+    height: 20px;
+  }
+
+  .admin-btn {
+    padding: 6px 10px;
+    font-size: 13px;
   }
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaFacebookF, FaTwitter, FaLinkedinIn, FaWhatsapp, FaTiktok, FaInstagram, FaYoutube } from 'react-icons/fa';
+import { FaFacebookF, FaTwitter, FaLinkedinIn, FaWhatsapp, FaTiktok, FaInstagram, FaYoutube, FaBars, FaTimes } from 'react-icons/fa';
 import { MdHowToVote } from 'react-icons/md';
 import { useAuth } from './auth';
 import './App.css';
@@ -64,7 +64,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        <ul className="nav-links">
+        <ul className="nav-links" id="main-nav-links">
           <li className="active" onClick={goTo('/')}>HOME</li>
           <li className="dropdown" onClick={() => setAboutOpen(!aboutOpen)}>
             ABOUT <span>⌄</span>
@@ -114,16 +114,25 @@ const Navbar = () => {
           <li onClick={() => openModal('contact')}>CONTACT</li>
         </ul>
 
-        <button
-          className="menu-trigger"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Menu"
-          aria-expanded={mobileMenuOpen}
-        >
+        {/* Decorative ballot icon */}
+        <div className="menu-trigger" aria-hidden="true">
           <MdHowToVote size={30} />
-        </button>
+        </div>
         
         <button className="admin-btn" onClick={goTo(admin ? '/admin' : '/admin/login')}>Admin</button>
+
+        {/* Opens the navigation links on phones (hidden on wide screens) */}
+        <button
+          type="button"
+          className="hamburger-btn"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={mobileMenuOpen}
+          aria-controls="main-nav-links"
+        >
+          {mobileMenuOpen ? <FaTimes /> : <FaBars />}
+          <span>{mobileMenuOpen ? 'Close' : 'Menu'}</span>
+        </button>
       </nav>
 
       {/* Modal */}
