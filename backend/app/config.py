@@ -28,6 +28,11 @@ CORS_ORIGINS = [
     if origin.strip()
 ]
 
+# Demo mode: fill an empty database with sample voters and ballots so the
+# dashboards have data to show. Never enable this for a real election.
+DEMO_DATA = os.getenv("DEMO_DATA", "").lower() in ("1", "true", "yes")
+DEMO_VOTER_PASSWORD = os.getenv("DEMO_VOTER_PASSWORD", "Demo1234")
+
 # The first admin account is created on startup from these values (if set).
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")

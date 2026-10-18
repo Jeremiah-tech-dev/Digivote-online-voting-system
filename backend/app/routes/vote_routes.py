@@ -1,14 +1,18 @@
+import secrets
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from app.auth import get_current_voter
 from app.database import get_db
+from app.models.audit_log import record_audit
 from app.models.election import Candidate, Election
-from app.models.vote import Vote
+from app.models.vote import Vote, VoterParticipation
 from app.models.voter import Voter
 from app.schemas import BallotSubmit
+from app.utils.helpers import generate_receipt_code
 
 router = APIRouter()
+
 
 @router.post('/votes', status_code=201)
 def cast_ballot(data: BallotSubmit, voter: Voter = Depends(get_current_voter), db: Session = Depends(get_db)):
@@ -30,6 +34,8 @@ def cast_ballot(data: BallotSubmit, voter: Voter = Depends(get_current_voter), d
         (data.senator_id, 'Senator', True),
     ]
 
+    receipt_code = generate_receipt_code()
+
     for candidate_id, position, county_level in selections:
         candidate = db.query(Candidate).filter(
             Candidate.id == candidate_id,
@@ -40,16 +46,21 @@ def cast_ballot(data: BallotSubmit, voter: Voter = Depends(get_current_voter), d
         if county_level and candidate.county != voter.county:
             raise HTTPException(status_code=400, detail=f'You can only vote for a {position.lower()} in {voter.county}')
 
+        # Note: no voter_id and no timestamp - the vote can't be traced back to the voter
         db.add(Vote(
-            voter_id=voter.id,
+            id=secrets.token_hex(16),
+            ballot_code=receipt_code,
             election_id=election.id,
             candidate_id=candidate.id,
             position=position
         ))
 
+    # Separately record THAT this voter took part
+    db.add(VoterParticipation(voter_id=voter.id, election_id=election.id))
     voter.has_voted = True
+    record_audit(db, 'ballot_cast', 'voter', voter.national_id_number, f'Election {election.id}')
 
-    # All three votes and the has_voted flag are saved together, or not at all.
+    # The votes, the participation record and the audit entry are saved together, or not at all.
     try:
         db.commit()
     except IntegrityError:
@@ -57,4 +68,22 @@ def cast_ballot(data: BallotSubmit, voter: Voter = Depends(get_current_voter), d
         db.rollback()
         raise HTTPException(status_code=409, detail='You have already voted in this election.')
 
-    return {'message': 'Your ballot has been cast successfully'}
+    return {'message': 'Your ballot has been cast successfully', 'receipt_code': receipt_code}
+
+
+@router.get('/receipts/{receipt_code}')
+def check_receipt(receipt_code: str, db: Session = Depends(get_db)):
+    """Lets a voter confirm their ballot was counted.
+    It deliberately does NOT reveal who they voted for, so a receipt can't be used
+    to prove a vote to someone else (which would allow vote buying or coercion)."""
+    code = receipt_code.strip().upper()
+    votes = db.query(Vote).filter(Vote.ballot_code == code).all()
+    if not votes:
+        raise HTTPException(status_code=404, detail='No ballot found with that receipt code')
+
+    election = votes[0].election
+    return {
+        'counted': True,
+        'election': election.title,
+        'positions_recorded': sorted(v.position for v in votes)
+    }

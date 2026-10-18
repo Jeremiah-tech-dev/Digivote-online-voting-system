@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app import config
 from app.auth import create_access_token, get_current_admin, get_current_voter
 from app.database import get_db
+from app.models.audit_log import record_audit
 from app.models.voter import Voter
 from app.schemas import VoterLogin, VoterRegister, VoterVerify
 from app.utils.helpers import hash_password, verify_password
@@ -71,11 +72,16 @@ def login_voter(data: VoterLogin, db: Session = Depends(get_db)):
     voter = db.query(Voter).filter(Voter.national_id_number == data.nationalId.strip()).first()
 
     if not voter or not verify_password(voter.password_hash, data.password):
+        record_audit(db, 'voter_login_failed', 'anonymous', data.nationalId.strip()[:100])
+        db.commit()
         raise HTTPException(status_code=401, detail='Invalid credentials')
 
     # Check if voter has already voted
     if voter.has_voted:
         raise HTTPException(status_code=403, detail='You have already voted in this election.')
+
+    record_audit(db, 'voter_login', 'voter', voter.national_id_number)
+    db.commit()
 
     token = create_access_token(voter.id, 'voter', config.VOTER_TOKEN_EXPIRE_MINUTES)
     return {

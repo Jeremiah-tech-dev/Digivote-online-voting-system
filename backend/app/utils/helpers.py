@@ -1,3 +1,4 @@
+import secrets
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -15,6 +16,9 @@ VALID_COUNTIES = ('Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret')
 
 # Positions on the ballot, in voting order
 BALLOT_POSITIONS = ('Presidential', 'Governor', 'Senator')
+
+# Election lifecycle: upcoming -> active -> closed (closed is final)
+ELECTION_STATUSES = ('upcoming', 'active', 'closed')
 
 # List of valid genders
 VALID_GENDERS = ['male', 'female', 'other']
@@ -48,3 +52,9 @@ def format_voter_info(voter):
         'location': get_voter_location_tuple(voter),
         'contact': [voter.phone_number, voter.email]
     }
+
+def generate_receipt_code():
+    """A random, hard-to-guess ballot receipt code like 'K7Q2-M9XD-4TPA'"""
+    alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'  # no 0/O or 1/I, which are easy to mix up
+    raw = ''.join(secrets.choice(alphabet) for _ in range(12))
+    return f"{raw[0:4]}-{raw[4:8]}-{raw[8:12]}"

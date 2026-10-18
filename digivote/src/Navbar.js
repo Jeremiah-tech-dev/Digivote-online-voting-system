@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { FaFacebookF, FaTwitter, FaLinkedinIn, FaWhatsapp, FaTiktok, FaInstagram, FaYoutube } from 'react-icons/fa';
 import { MdHowToVote } from 'react-icons/md';
 import RegisterVoter from './components/RegisterVoter';
 import VerifyVoter from './components/VerifyVoter';
 import LoginForm from './components/LoginForm';
 import VotingDashboard from './components/VotingDashboard';
-import AdminDashboard from './components/AdminDashboard';
 import AdminLogin from './components/AdminLogin';
+import ReceiptCheck from './components/ReceiptCheck';
 import './App.css';
+
+// Loaded only when an admin opens it, so voters don't download the charting library
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 
 const Navbar = () => {
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -21,6 +24,7 @@ const Navbar = () => {
   const [showVotingDashboard, setShowVotingDashboard] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [showReceiptCheck, setShowReceiptCheck] = useState(false);
   const [loggedInVoter, setLoggedInVoter] = useState(null);
   // Login tokens live only in memory: closing or refreshing the page logs the user out
   const [voterToken, setVoterToken] = useState(null);
@@ -87,6 +91,7 @@ const Navbar = () => {
                 <li onClick={(e) => { e.stopPropagation(); setRegistrationOpen(false); setShowRegisterForm(true); }}>Register as a Voter</li>
                 <li onClick={(e) => { e.stopPropagation(); setRegistrationOpen(false); setShowVerifyForm(true); }}>Verify your voting details</li>
                 <li onClick={(e) => { e.stopPropagation(); setRegistrationOpen(false); setShowLoginForm(true); }}>Login to voting portal</li>
+                <li onClick={(e) => { e.stopPropagation(); setRegistrationOpen(false); setShowReceiptCheck(true); }}>Check ballot receipt</li>
               </ul>
             )}
           </li>
@@ -180,6 +185,9 @@ const Navbar = () => {
       {/* Verify Voter Portal */}
       {showVerifyForm && <VerifyVoter onClose={() => setShowVerifyForm(false)} />}
       
+      {/* Ballot Receipt Check */}
+      {showReceiptCheck && <ReceiptCheck onClose={() => setShowReceiptCheck(false)} />}
+      
       {/* Login Form */}
       {showLoginForm && (
         <LoginForm 
@@ -224,13 +232,15 @@ const Navbar = () => {
       
       {/* Admin Dashboard */}
       {showAdminDashboard && (
-        <AdminDashboard
-          token={adminToken}
-          onClose={() => {
-            setShowAdminDashboard(false);
-            setAdminToken(null);
-          }}
-        />
+        <Suspense fallback={<div className="fullscreen-loading-overlay"><div className="loading-content"><div className="loading-spinner"></div><p>Loading admin portal...</p></div></div>}>
+          <AdminDashboard
+            token={adminToken}
+            onClose={() => {
+              setShowAdminDashboard(false);
+              setAdminToken(null);
+            }}
+          />
+        </Suspense>
       )}
     </header>
   );

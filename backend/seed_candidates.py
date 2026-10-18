@@ -1,5 +1,5 @@
 from app.database import SessionLocal, engine, Base
-from app.models import admin, election, vote, voter  # noqa: F401 - registers the tables
+from app.models import admin, audit_log, election, vote, voter  # noqa: F401 - registers the tables
 from app.seed import seed_database
 
 # The API also runs this on startup; this script lets you seed without starting the server.

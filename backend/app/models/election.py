@@ -12,7 +12,7 @@ class Election(Base):
     election_type = Column(String(50), nullable=False)
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
-    status = Column(String(20), default='upcoming')
+    status = Column(String(20), default='upcoming')  # upcoming -> active -> closed
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationships
@@ -45,6 +45,8 @@ class Candidate(Base):
     party = Column(String(100), nullable=False)
     position = Column(String(100), nullable=False)
     county = Column(String(100))
+    image_url = Column(String(500))
+    party_logo_url = Column(String(500))
     election_id = Column(Integer, ForeignKey('elections.id'), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     
@@ -61,5 +63,7 @@ class Candidate(Base):
             'party': self.party,
             'position': self.position,
             'county': self.county,
+            'image_url': self.image_url,
+            'party_logo_url': self.party_logo_url,
             'election_id': self.election_id
         }

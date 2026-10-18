@@ -1,9 +1,12 @@
 import re
 from datetime import date
+from typing import Optional
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 
-from app.utils.helpers import MINIMUM_VOTING_AGE, VALID_COUNTIES, VALID_GENDERS, calculate_age
+from app.utils.helpers import (
+    BALLOT_POSITIONS, ELECTION_STATUSES, MINIMUM_VOTING_AGE, VALID_COUNTIES, VALID_GENDERS, calculate_age
+)
 
 NATIONAL_ID_PATTERN = re.compile(r'^\d{7,8}$')
 # Kenyan mobile numbers: 07XXXXXXXX, 01XXXXXXXX or +2547XXXXXXXX / +2541XXXXXXXX
@@ -152,6 +155,70 @@ class VoterLogin(BaseModel):
 class AdminLogin(BaseModel):
     username: str
     password: str
+
+
+URL_PATTERN = re.compile(r'^https?://\S+$')
+
+
+class CandidateData(BaseModel):
+    """Used by admins to add or edit a candidate"""
+    first_name: str
+    last_name: str
+    party: str
+    position: str
+    county: Optional[str] = None
+    image_url: Optional[str] = None
+    party_logo_url: Optional[str] = None
+
+    @field_validator('first_name', 'last_name')
+    @classmethod
+    def validate_name(cls, value):
+        return _required_text(value, 'Name')
+
+    @field_validator('party')
+    @classmethod
+    def validate_party(cls, value):
+        return _required_text(value, 'Party')
+
+    @field_validator('position')
+    @classmethod
+    def validate_position(cls, value):
+        if value not in BALLOT_POSITIONS:
+            raise ValueError(f"Position must be one of: {', '.join(BALLOT_POSITIONS)}")
+        return value
+
+    @field_validator('county', 'image_url', 'party_logo_url', mode='before')
+    @classmethod
+    def blank_to_none(cls, value):
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value.strip() if isinstance(value, str) else value
+
+    @field_validator('image_url', 'party_logo_url')
+    @classmethod
+    def validate_url(cls, value):
+        if value is not None and (len(value) > 500 or not URL_PATTERN.match(value)):
+            raise ValueError('Image links must start with http:// or https://')
+        return value
+
+    @model_validator(mode='after')
+    def validate_county_for_position(self):
+        if self.position == 'Presidential':
+            self.county = None
+        elif self.county not in VALID_COUNTIES:
+            raise ValueError(f"{self.position} candidates need a county: {', '.join(VALID_COUNTIES)}")
+        return self
+
+
+class ElectionStatusUpdate(BaseModel):
+    status: str
+
+    @field_validator('status')
+    @classmethod
+    def validate_status(cls, value):
+        if value not in ELECTION_STATUSES:
+            raise ValueError(f"Status must be one of: {', '.join(ELECTION_STATUSES)}")
+        return value
 
 
 class BallotSubmit(BaseModel):

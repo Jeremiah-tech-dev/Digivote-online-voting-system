@@ -15,9 +15,16 @@ A secure and modern online voting platform for Kenya's electoral process, built 
 - **Step-by-Step Voting**: Sequential voting process (Presidential → Governor → Senator)
 - **County-Based Voting**: Voters only see candidates from their registered county
 - **One-Time Voting**: System prevents multiple votes from same voter
+- **Review Before Submitting**: Voters check all three choices before the ballot is cast
+- **Ballot Receipt**: After voting, voters get a receipt code to confirm their ballot was counted (it never reveals their choices)
 
 ### Admin Features
-- **Admin Dashboard**: View real-time election results
+- **Admin Portal**: A full dashboard built with Apache ECharts
+  - **Live Results**: turnout gauge, presidential bar chart and vote-share donut, turnout over time, race leaders, turnout by county, and Governor/Senator charts per county; refreshes every 10 seconds, with a table view
+  - **Election Control**: open and close voting (upcoming → active → closed; closing is final)
+  - **Candidates**: add, edit and remove candidates before voting starts
+  - **Voters**: searchable list of registered voters
+  - **Audit Log**: logins, failed logins, ballots cast and every admin action
 - **Secure Access**: Admin accounts stored in the database with hashed passwords; results are only served to a signed-in admin
 - **Results Display**: Shows vote counts for all candidates organized by position and county
 - **Total Votes Counter**: Displays total votes cast across all positions
@@ -31,6 +38,7 @@ A secure and modern online voting platform for Kenya's electoral process, built 
 
 ### Frontend
 - React.js
+- Apache ECharts (admin charts, loaded only for admins)
 - React Icons
 - CSS3
 
@@ -78,6 +86,8 @@ Backend runs on `http://localhost:5000`
 | `SECRET_KEY` | Yes (in production) | Signs login tokens. If unset, a random key is used and everyone is logged out on restart. |
 | `ADMIN_USERNAME` | No (default `admin`) | Username of the first admin account |
 | `ADMIN_PASSWORD` | Yes, to create the admin | Password of the first admin account |
+| `DEMO_DATA` | No | Set to `true` to fill an empty database with sample voters and ballots for demonstrations |
+| `DEMO_VOTER_PASSWORD` | No (default `Demo1234`) | Password shared by all demo voters |
 | `CORS_ORIGINS` | No | Comma-separated frontend URLs allowed to call the API |
 | `DATABASE_URL` | No | Defaults to SQLite at `backend/instance/voters.db` |
 | `VOTER_TOKEN_EXPIRE_MINUTES` / `ADMIN_TOKEN_EXPIRE_MINUTES` | No | Login lifetime (default 30 / 60) |
@@ -114,6 +124,14 @@ Frontend runs on `http://localhost:3000`
 4. **Review and submit**: Check your choices, then submit the whole ballot at once
 5. **Confirmation**: Receive confirmation after successful voting
 
+### Demo Mode
+
+For presentations, start the backend with `DEMO_DATA=true` on an empty database. It creates
+116 sample voters across the five counties, opens the election, and has about three quarters
+of them vote over the previous ten hours, so every admin chart has data. Demo voters have
+national IDs `20000001` to `20000116` and the password `Demo1234`; the ones who haven't voted
+yet can log in and vote live during a demo.
+
 ### For Admins
 
 1. Click "Admin" button in the navbar
@@ -131,12 +149,17 @@ All endpoints are under `/api`. 🔒 = needs a voter token, 🛡️ = needs an a
 | POST | `/verify` | Public | Check registration details by ID and year of birth |
 | POST | `/login` | Public | Voter login, returns a token |
 | GET | `/me` | 🔒 | The logged-in voter's details |
-| POST | `/votes` | 🔒 | Cast a complete ballot (president, governor, senator) |
+| POST | `/votes` | 🔒 | Cast a complete ballot (president, governor, senator); returns a receipt code |
+| GET | `/receipts/{code}` | Public | Confirm a ballot was counted (doesn't reveal choices) |
 | GET | `/stats` | Public | Total registered voters and turnout |
 | GET | `/elections`, `/elections/{id}/candidates` | Public | Election and candidate lists |
 | POST | `/admin/login` | Public | Admin login, returns a token |
 | GET | `/results`, `/elections/{id}/results` | 🛡️ | Vote totals |
 | GET | `/voters`, `/voters/{id}` | 🛡️ | Registered voters |
+| PUT | `/admin/elections/{id}/status` | 🛡️ | Open or close voting |
+| POST | `/admin/elections/{id}/candidates` | 🛡️ | Add a candidate (before voting starts) |
+| PUT / DELETE | `/admin/candidates/{id}` | 🛡️ | Edit or remove a candidate (before voting starts) |
+| GET | `/admin/audit-log` | 🛡️ | Latest security events |
 
 ## API Documentation
 
@@ -153,16 +176,22 @@ FastAPI provides automatic interactive API documentation:
 - Voting status (has_voted)
 
 ### Candidates Table
-- Candidate information (name, party)
+- Candidate information (name, party, photo and party logo links)
 - Position (Presidential, Governor, Senator)
 - County (for county-level positions)
 
-### Votes Table
-- Voter ID
-- Candidate ID
-- Election ID
-- Position (unique per voter and election, so nobody can vote twice for the same office)
-- Timestamp
+### Votes Table (what was voted for, never who voted)
+- Random ID (not sequential, so row order doesn't reveal voting order)
+- Ballot receipt code
+- Candidate ID, Election ID, Position
+- No voter ID and no timestamp
+
+### Voter Participation Table (who voted, never what for)
+- Voter ID, Election ID, time voted
+- Unique per voter and election, so the database itself blocks a second ballot
+
+### Audit Logs Table
+- Action, who did it, details, time
 
 ### Admins Table
 - Username
@@ -179,7 +208,11 @@ FastAPI provides automatic interactive API documentation:
 - **Token authentication (JWT)**: signed, expiring tokens; the server identifies the voter from the token, never from data the browser sends
 - **Server-side voting rules**: one ballot per voter, candidates must match the position and the voter's county, and voting only while the election is active
 - **Atomic ballots**: all three votes and the "has voted" flag are saved in one database transaction, so a ballot is either fully counted or not at all
-- **Database-level guarantee**: a unique constraint blocks a second vote for the same position even if two requests arrive at the same moment
+- **Database-level guarantee**: a unique constraint blocks a second ballot even if two requests arrive at the same moment
+- **Ballot secrecy**: who voted and what they voted for are stored in separate tables with nothing linking them
+- **Receipt-freeness**: the ballot receipt confirms a vote was counted but can't prove who it was for, which prevents vote buying
+- **Locked results**: candidates can't be changed once votes exist, and a closed election can't be reopened
+- **Audit trail**: every login, failed login, ballot and admin action is recorded
 - **Role-based access**: results and voter lists are admin-only; voter tokens cannot access admin endpoints
 - **Input validation** with Pydantic: Kenyan ID and phone formats, minimum voting age of 18, password strength, valid counties
 - **No user enumeration**: verification gives the same response for an unknown ID and a wrong year of birth
@@ -195,9 +228,10 @@ Digivote-online-voting-system/
 │   ├── app/
 │   │   ├── models/
 │   │   │   ├── admin.py
+│   │   │   ├── audit_log.py
 │   │   │   ├── voter.py
 │   │   │   ├── election.py
-│   │   │   └── vote.py
+│   │   │   └── vote.py      # anonymous votes + voter participation
 │   │   ├── routes/
 │   │   │   ├── admin_routes.py
 │   │   │   ├── voter_routes.py
@@ -209,6 +243,7 @@ Digivote-online-voting-system/
 │   │   ├── auth.py          # JWT creation and access checks
 │   │   ├── config.py        # settings from environment variables
 │   │   ├── database.py
+│   │   ├── demo.py          # optional demo voters and ballots
 │   │   ├── schemas.py       # request validation rules
 │   │   ├── seed.py          # election, candidates and first admin
 │   │   └── __init__.py
@@ -223,7 +258,9 @@ Digivote-online-voting-system/
 │   ├── public/
 │   ├── src/
 │   │   ├── components/
+│   │   │   └── admin/       # admin portal panels and ECharts charts
 │   │   ├── api.js           # shared API client
+│   │   ├── candidates.js    # shared candidate display helpers
 │   │   ├── App.js
 │   │   └── App.css
 │   └── package.json

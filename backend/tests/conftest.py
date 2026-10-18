@@ -19,7 +19,28 @@ from main import app  # noqa: E402
 
 @pytest.fixture(scope="session")
 def client():
-    return TestClient(app)
+    test_client = TestClient(app)
+    # The seeded election starts as 'upcoming'; open it so tests can vote
+    response = test_client.put("/api/admin/elections/1/status", json={"status": "active"},
+                               headers=admin_login(test_client))
+    assert response.status_code == 200, response.text
+    return test_client
+
+
+@pytest.fixture
+def empty_election():
+    """A separate election with no candidates or votes, for tests that change its status"""
+    from datetime import datetime
+    from app.database import SessionLocal
+    from app.models.election import Election
+
+    with SessionLocal() as db:
+        election = Election(title="Test By-Election", election_type="By-Election",
+                            start_date=datetime(2027, 1, 1), end_date=datetime(2027, 1, 1),
+                            status="upcoming")
+        db.add(election)
+        db.commit()
+        return election.id
 
 
 _next_id = [10000000]

@@ -24,8 +24,8 @@ class Voter(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationship
-    votes = relationship('Vote', back_populates='voter', cascade='all, delete-orphan')
+    # Relationship (records THAT the voter voted, not who they voted for)
+    participations = relationship('VoterParticipation', back_populates='voter', cascade='all, delete-orphan')
     
     def to_dict(self):
         """Convert voter object to dictionary"""
