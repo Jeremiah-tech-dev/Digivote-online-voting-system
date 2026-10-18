@@ -18,6 +18,9 @@ ADMIN_TOKEN_EXPIRE_MINUTES = int(os.getenv("ADMIN_TOKEN_EXPIRE_MINUTES", "60"))
 BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_SQLITE_PATH = os.path.join(BACKEND_DIR, "instance", "voters.db")
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DEFAULT_SQLITE_PATH}")
+# Hosts such as Render and Heroku give "postgres://..." but SQLAlchemy needs "postgresql://..."
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = "postgresql://" + DATABASE_URL[len("postgres://"):]
 
 CORS_ORIGINS = [
     origin.strip()

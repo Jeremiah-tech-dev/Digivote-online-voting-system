@@ -9,7 +9,8 @@ if DATABASE_URL.startswith("sqlite"):
 else:
     connect_args = {}
 
-engine = create_engine(DATABASE_URL, connect_args=connect_args)
+# pool_pre_ping replaces database connections that were closed by the server
+engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

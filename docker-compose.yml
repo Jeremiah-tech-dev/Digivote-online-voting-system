@@ -1,0 +1,48 @@
+# Run the whole system with one command:
+#   docker compose up --build
+# Then open http://localhost:3000 (API docs at http://localhost:5000/docs).
+#
+# Settings can be overridden in a .env file next to this one (see .env.example).
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: digivote
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-digivote}
+      POSTGRES_DB: digivote
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U digivote -d digivote"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql://digivote:${POSTGRES_PASSWORD:-digivote}@db:5432/digivote
+      SECRET_KEY: ${SECRET_KEY:-local-docker-secret-change-me}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin12345}
+      DEMO_DATA: ${DEMO_DATA:-true}
+      CORS_ORIGINS: http://localhost:3000
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./digivote
+      args:
+        REACT_APP_API_URL: http://localhost:5000
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

@@ -1,7 +1,63 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import App from './App';
+import { fakeToken, jsonResponse, renderWithProviders } from './testUtils';
+
+beforeEach(() => {
+  sessionStorage.clear();
+  global.fetch = jest.fn(() => jsonResponse({}));
+});
 
 test('renders the landing page with an admin entry point', () => {
-  render(<App />);
+  renderWithProviders(<App />);
   expect(screen.getByRole('button', { name: /admin/i })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /vote for your future/i })).toHaveAttribute('href', '/login');
+});
+
+test('each form has its own address', () => {
+  renderWithProviders(<App />, { route: '/register' });
+  expect(screen.getByRole('heading', { name: /register as a voter/i })).toBeInTheDocument();
+});
+
+test('the voting portal sends logged-out visitors to the login form', () => {
+  renderWithProviders(<App />, { route: '/vote' });
+  expect(screen.getByRole('heading', { name: /login to vote/i })).toBeInTheDocument();
+});
+
+test('the admin portal sends logged-out visitors to the admin login', () => {
+  renderWithProviders(<App />, { route: '/admin' });
+  expect(screen.getByRole('heading', { name: /admin login/i })).toBeInTheDocument();
+});
+
+test('an expired saved login is ignored', () => {
+  sessionStorage.setItem('digivote-session', JSON.stringify({
+    voter: { token: fakeToken(-60), profile: { county: 'Nairobi' } },
+    admin: null
+  }));
+  renderWithProviders(<App />, { route: '/vote' });
+  expect(screen.getByRole('heading', { name: /login to vote/i })).toBeInTheDocument();
+});
+
+test('unknown addresses go back to the home page', () => {
+  renderWithProviders(<App />, { route: '/no-such-page' });
+  expect(screen.getByRole('button', { name: /admin/i })).toBeInTheDocument();
+});
+
+test('logging out of the voting portal returns to the home page', async () => {
+  sessionStorage.setItem('digivote-session', JSON.stringify({
+    voter: { token: fakeToken(), profile: { county: 'Nairobi' } },
+    admin: null
+  }));
+  global.fetch = jest.fn((url) => {
+    if (url.endsWith('/elections')) return jsonResponse({ elections: [] });
+    if (url.includes('/candidates')) return jsonResponse({ candidates: [] });
+    if (url.endsWith('/stats')) return jsonResponse({ total_voters: 0, voters_voted: 0 });
+    return jsonResponse({ has_voted: false });
+  });
+  renderWithProviders(<App />, { route: '/vote' });
+
+  fireEvent.click(await screen.findByRole('button', { name: /logout/i }));
+
+  expect(await screen.findByRole('link', { name: /vote for your future/i })).toBeInTheDocument();
+  expect(screen.queryByRole('heading', { name: /login to vote/i })).not.toBeInTheDocument();
+  expect(JSON.parse(sessionStorage.getItem('digivote-session')).voter).toBeNull();
 });

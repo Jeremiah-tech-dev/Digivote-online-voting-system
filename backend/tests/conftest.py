@@ -4,9 +4,11 @@ import tempfile
 
 import pytest
 
-# Use a throwaway database and known secrets before the app is imported
+# Use a throwaway database and known secrets before the app is imported.
+# Set TEST_DATABASE_URL to run the tests against PostgreSQL (it must start empty).
 _db_dir = tempfile.mkdtemp()
-os.environ["DATABASE_URL"] = f"sqlite:///{os.path.join(_db_dir, 'test.db')}"
+os.environ["DATABASE_URL"] = os.getenv("TEST_DATABASE_URL", f"sqlite:///{os.path.join(_db_dir, 'test.db')}")
+os.environ.pop("DEMO_DATA", None)
 os.environ["SECRET_KEY"] = "test-secret-key"
 os.environ["ADMIN_USERNAME"] = "admin"
 os.environ["ADMIN_PASSWORD"] = "AdminPass123"

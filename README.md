@@ -1,6 +1,26 @@
 # Digivote Online Voting System
 
+![CI](https://github.com/Jeremiah-tech-dev/Digivote-online-voting-system/actions/workflows/ci.yml/badge.svg)
+
 A secure and modern online voting platform for Kenya's electoral process, built with React and FastAPI.
+
+## Quick Start (Docker)
+
+The fastest way to run the whole system (PostgreSQL, API and website) is one command:
+
+```bash
+docker compose up --build
+```
+
+Then open **http://localhost:3000**. The database is filled with demo data, so the admin
+portal has charts straight away:
+
+- **Admin:** http://localhost:3000/admin — username `admin`, password `Admin12345`
+- **Voter:** log in with national ID `20000035` and password `Demo1234` (one of the demo voters who hasn't voted yet)
+- **API docs:** http://localhost:5000/docs
+
+Copy `.env.example` to `.env` to change the passwords, or set `DEMO_DATA=false` for an empty election.
+Run `docker compose down -v` to delete the database and start again.
 
 ## Live Demo
 
@@ -38,6 +58,7 @@ A secure and modern online voting platform for Kenya's electoral process, built 
 
 ### Frontend
 - React.js
+- React Router (each page has its own address)
 - Apache ECharts (admin charts, loaded only for admins)
 - React Icons
 - CSS3
@@ -45,17 +66,22 @@ A secure and modern online voting platform for Kenya's electoral process, built 
 ### Backend
 - FastAPI (Python)
 - SQLAlchemy ORM
-- SQLite Database
+- PostgreSQL in production and Docker; SQLite for quick local development
+- Alembic database migrations
 - CORS Middleware
 - Pydantic for data validation
 - PyJWT for token-based authentication
 - Uvicorn ASGI server
 - pytest for automated tests
 
-## Installation
+### Tooling
+- Docker and Docker Compose
+- GitHub Actions CI: runs the backend tests on SQLite **and** PostgreSQL, plus the frontend tests and build, on every push
+
+## Manual Installation (without Docker)
 
 ### Prerequisites
-- Node.js (v14+)
+- Node.js (v18+)
 - Python (v3.11)
 - Pipenv
 
@@ -73,9 +99,24 @@ export ADMIN_PASSWORD='choose-a-strong-password'
 pipenv run uvicorn main:app --reload --port 5000
 ```
 
-On startup the API creates the database tables, the election, all candidates, and the
-admin account from `ADMIN_USERNAME` / `ADMIN_PASSWORD` (if it doesn't exist yet).
-`seed_candidates.py` does the same without starting the server.
+On startup the API applies any pending database migrations, then creates the election,
+all candidates, and the admin account from `ADMIN_USERNAME` / `ADMIN_PASSWORD` (if they
+don't exist yet). `seed_candidates.py` does the same without starting the server.
+
+Without `DATABASE_URL` the API uses a SQLite file, so no database server is needed for
+development. To use PostgreSQL, set for example
+`DATABASE_URL=postgresql://user:password@localhost:5432/digivote`.
+
+### Database Migrations
+
+The database schema is managed with Alembic (`backend/migrations/`). Migrations run
+automatically on startup; to work with them by hand:
+
+```bash
+cd backend
+pipenv run alembic upgrade head                            # apply migrations
+pipenv run alembic revision --autogenerate -m "describe"   # after changing a model
+```
 
 Backend runs on `http://localhost:5000`
 
@@ -89,15 +130,20 @@ Backend runs on `http://localhost:5000`
 | `DEMO_DATA` | No | Set to `true` to fill an empty database with sample voters and ballots for demonstrations |
 | `DEMO_VOTER_PASSWORD` | No (default `Demo1234`) | Password shared by all demo voters |
 | `CORS_ORIGINS` | No | Comma-separated frontend URLs allowed to call the API |
-| `DATABASE_URL` | No | Defaults to SQLite at `backend/instance/voters.db` |
+| `DATABASE_URL` | No | PostgreSQL connection URL (`postgres://` or `postgresql://`). Defaults to SQLite at `backend/instance/voters.db` |
 | `VOTER_TOKEN_EXPIRE_MINUTES` / `ADMIN_TOKEN_EXPIRE_MINUTES` | No | Login lifetime (default 30 / 60) |
 
 ### Running the Tests
 
 ```bash
-cd backend && pipenv run pytest      # API security and validation tests
-cd digivote && npm test              # frontend tests
+cd backend && pipenv run pytest      # API: security, voting rules, validation, migrations
+cd digivote && npm test              # frontend: routing, forms, voting flow, API client
+
+# Run the backend tests against PostgreSQL (the database must be empty)
+TEST_DATABASE_URL=postgresql://user:password@localhost:5432/digivote_test pipenv run pytest
 ```
+
+GitHub Actions runs all of these on every push (`.github/workflows/ci.yml`).
 
 API Documentation available at `http://localhost:5000/docs`
 
@@ -110,6 +156,32 @@ npm start
 ```
 
 Frontend runs on `http://localhost:3000`
+
+### Deployment
+
+- **Frontend (Vercel):** project root `digivote`, environment variable `REACT_APP_API_URL`
+  set to the backend URL. `digivote/vercel.json` sends every address to the React app, so
+  links like `/admin` or `/login` work when opened directly.
+- **Backend (Render):** root `backend`, build `pip install -r requirements.txt`, start
+  `uvicorn main:app --host 0.0.0.0 --port $PORT`. Create a Render PostgreSQL database and
+  set `DATABASE_URL` to its internal URL, so data survives redeploys. Also set `SECRET_KEY`,
+  `ADMIN_PASSWORD`, and `DEMO_DATA=true` for a demo.
+
+## Pages
+
+| Address | Page |
+|---|---|
+| `/` | Home page |
+| `/register` | Voter registration |
+| `/verify` | Check registration details |
+| `/login` | Voter login |
+| `/vote` | Voting portal (voters only) |
+| `/receipt` | Check a ballot receipt |
+| `/admin/login` | Admin login |
+| `/admin` | Admin portal (admins only) |
+
+A login is kept for the browser tab (so refreshing doesn't log you out) and ends when
+the tab is closed, the token expires, or the server rejects it.
 
 ## Usage
 
@@ -243,11 +315,15 @@ Digivote-online-voting-system/
 │   │   ├── auth.py          # JWT creation and access checks
 │   │   ├── config.py        # settings from environment variables
 │   │   ├── database.py
+│   │   ├── migrations.py    # runs Alembic on startup
 │   │   ├── demo.py          # optional demo voters and ballots
 │   │   ├── schemas.py       # request validation rules
 │   │   ├── seed.py          # election, candidates and first admin
 │   │   └── __init__.py
+│   ├── migrations/          # Alembic database migrations
 │   ├── tests/               # pytest suite
+│   ├── alembic.ini
+│   ├── Dockerfile
 │   ├── .env.example
 │   ├── Pipfile
 │   ├── requirements.txt
@@ -259,11 +335,19 @@ Digivote-online-voting-system/
 │   ├── src/
 │   │   ├── components/
 │   │   │   └── admin/       # admin portal panels and ECharts charts
+│   │   ├── styles/          # one stylesheet per section of the site
 │   │   ├── api.js           # shared API client
+│   │   ├── auth.js          # who is logged in (voter / admin)
 │   │   ├── candidates.js    # shared candidate display helpers
-│   │   ├── App.js
-│   │   └── App.css
+│   │   ├── App.js           # page routes
+│   │   └── App.css          # imports the stylesheets in styles/
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   ├── vercel.json
 │   └── package.json
+├── .github/workflows/ci.yml # automated tests
+├── docker-compose.yml
+├── .env.example
 └── README.md
 ```
 

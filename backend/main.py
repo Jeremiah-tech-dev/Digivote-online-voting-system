@@ -1,17 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app import config
-from app.database import engine, Base, SessionLocal
-from app.models import admin, audit_log, election, vote, voter  # noqa: F401 - registers the tables
+from app.database import SessionLocal
+from app.migrations import run_migrations
 from app.routes import voter_routes, election_routes, vote_routes, results_routes, admin_routes
 from app.seed import seed_database
 
-# Create database tables and make sure the election, candidates and admin exist
-Base.metadata.create_all(bind=engine)
+# Bring the database schema up to date, then make sure the election, candidates and admin exist
+run_migrations()
 with SessionLocal() as db:
     seed_database(db)
 
-app = FastAPI(title="Digivote API", version="1.2.0")
+app = FastAPI(title="Digivote API", version="1.3.0")
 
 # CORS configuration: only our own frontend may call the API from a browser
 app.add_middleware(

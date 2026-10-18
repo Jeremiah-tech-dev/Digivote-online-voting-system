@@ -15,6 +15,12 @@ const getErrorMessage = (data, fallback) => {
   return fallback;
 };
 
+// Called with the rejected token when the server answers 401 to a logged-in request
+let onUnauthorized = null;
+export const setUnauthorizedHandler = (handler) => {
+  onUnauthorized = handler;
+};
+
 // Call the backend. Throws an Error with a user-friendly message on failure.
 export const apiRequest = async (path, { method = 'GET', body, token } = {}) => {
   const headers = {};
@@ -40,6 +46,7 @@ export const apiRequest = async (path, { method = 'GET', body, token } = {}) => 
   }
 
   if (!response.ok) {
+    if (response.status === 401 && token && onUnauthorized) onUnauthorized(token);
     const error = new Error(getErrorMessage(data, `Request failed (${response.status})`));
     error.status = response.status;
     throw error;

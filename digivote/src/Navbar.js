@@ -1,41 +1,38 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaFacebookF, FaTwitter, FaLinkedinIn, FaWhatsapp, FaTiktok, FaInstagram, FaYoutube } from 'react-icons/fa';
 import { MdHowToVote } from 'react-icons/md';
-import RegisterVoter from './components/RegisterVoter';
-import VerifyVoter from './components/VerifyVoter';
-import LoginForm from './components/LoginForm';
-import VotingDashboard from './components/VotingDashboard';
-import AdminLogin from './components/AdminLogin';
-import ReceiptCheck from './components/ReceiptCheck';
+import { useAuth } from './auth';
 import './App.css';
 
-// Loaded only when an admin opens it, so voters don't download the charting library
-const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
-
 const Navbar = () => {
+  const navigate = useNavigate();
+  const { admin } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [registrationOpen, setRegistrationOpen] = useState(false);
   const [mediaOpen, setMediaOpen] = useState(false);
   const [workOpen, setWorkOpen] = useState(false);
   const [modalContent, setModalContent] = useState(null);
-  const [showRegisterForm, setShowRegisterForm] = useState(false);
-  const [showVerifyForm, setShowVerifyForm] = useState(false);
-  const [showLoginForm, setShowLoginForm] = useState(false);
-  const [showVotingDashboard, setShowVotingDashboard] = useState(false);
-  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
-  const [showAdminLogin, setShowAdminLogin] = useState(false);
-  const [showReceiptCheck, setShowReceiptCheck] = useState(false);
-  const [loggedInVoter, setLoggedInVoter] = useState(null);
-  // Login tokens live only in memory: closing or refreshing the page logs the user out
-  const [voterToken, setVoterToken] = useState(null);
-  const [adminToken, setAdminToken] = useState(null);
 
-  const openModal = (type) => {
-    setModalContent(type);
+  const closeMenus = () => {
     setAboutOpen(false);
     setRegistrationOpen(false);
     setMediaOpen(false);
     setWorkOpen(false);
+    setMobileMenuOpen(false);
+  };
+
+  const openModal = (type) => {
+    setModalContent(type);
+    closeMenus();
+  };
+
+  // Go to one of the app's pages (register, login, ...) and close any open menus
+  const goTo = (path) => (e) => {
+    e.stopPropagation();
+    closeMenus();
+    navigate(path);
   };
 
   const closeModal = () => setModalContent(null);
@@ -60,7 +57,7 @@ const Navbar = () => {
       </div>
 
       {/* Main Navigation */}
-      <nav className="main-nav">
+      <nav className={mobileMenuOpen ? 'main-nav nav-open' : 'main-nav'}>
         <div className="logo-section">
           <div className="logo-box">
             <img src="/IEBC.png" alt="IEBC Logo" className="logo-img" />
@@ -68,7 +65,7 @@ const Navbar = () => {
         </div>
 
         <ul className="nav-links">
-          <li className="active">HOME</li>
+          <li className="active" onClick={goTo('/')}>HOME</li>
           <li className="dropdown" onClick={() => setAboutOpen(!aboutOpen)}>
             ABOUT <span>⌄</span>
             {aboutOpen && (
@@ -88,10 +85,10 @@ const Navbar = () => {
                 <li onClick={(e) => { e.stopPropagation(); window.location.href = 'https://www.iebc.or.ke/registration/?aspirant'; }}>Aspirant Requirements</li>
                 <li onClick={(e) => { e.stopPropagation(); window.location.href = 'https://www.iebc.or.ke/docs/Physical_Locations_of_Constituency_Offices_in_Kenya_290_Constituencies.pdf'; }}>IEBC Constituency Offices</li>
                 <li onClick={(e) => { e.stopPropagation(); window.location.href = 'https://forms.iebc.or.ke/'; }}>Forms portal</li>
-                <li onClick={(e) => { e.stopPropagation(); setRegistrationOpen(false); setShowRegisterForm(true); }}>Register as a Voter</li>
-                <li onClick={(e) => { e.stopPropagation(); setRegistrationOpen(false); setShowVerifyForm(true); }}>Verify your voting details</li>
-                <li onClick={(e) => { e.stopPropagation(); setRegistrationOpen(false); setShowLoginForm(true); }}>Login to voting portal</li>
-                <li onClick={(e) => { e.stopPropagation(); setRegistrationOpen(false); setShowReceiptCheck(true); }}>Check ballot receipt</li>
+                <li onClick={goTo('/register')}>Register as a Voter</li>
+                <li onClick={goTo('/verify')}>Verify your voting details</li>
+                <li onClick={goTo('/login')}>Login to voting portal</li>
+                <li onClick={goTo('/receipt')}>Check ballot receipt</li>
               </ul>
             )}
           </li>
@@ -117,11 +114,16 @@ const Navbar = () => {
           <li onClick={() => openModal('contact')}>CONTACT</li>
         </ul>
 
-        <div className="menu-trigger">
+        <button
+          className="menu-trigger"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Menu"
+          aria-expanded={mobileMenuOpen}
+        >
           <MdHowToVote size={30} />
-        </div>
+        </button>
         
-        <button className="admin-btn" onClick={() => setShowAdminLogin(true)}>Admin</button>
+        <button className="admin-btn" onClick={goTo(admin ? '/admin' : '/admin/login')}>Admin</button>
       </nav>
 
       {/* Modal */}
@@ -178,70 +180,7 @@ const Navbar = () => {
           </div>
         </div>
       )}
-      
-      {/* Register Voter Form */}
-      {showRegisterForm && <RegisterVoter onClose={() => setShowRegisterForm(false)} />}
-      
-      {/* Verify Voter Portal */}
-      {showVerifyForm && <VerifyVoter onClose={() => setShowVerifyForm(false)} />}
-      
-      {/* Ballot Receipt Check */}
-      {showReceiptCheck && <ReceiptCheck onClose={() => setShowReceiptCheck(false)} />}
-      
-      {/* Login Form */}
-      {showLoginForm && (
-        <LoginForm 
-          onClose={() => setShowLoginForm(false)}
-          onLoginSuccess={(voter, token) => {
-            setLoggedInVoter(voter);
-            setVoterToken(token);
-            setShowLoginForm(false);
-            setShowVotingDashboard(true);
-          }}
-          onRegisterClick={() => {
-            setShowLoginForm(false);
-            setShowRegisterForm(true);
-          }}
-        />
-      )}
-      
-      {/* Voting Dashboard */}
-      {showVotingDashboard && (
-        <VotingDashboard 
-          onClose={() => {
-            setShowVotingDashboard(false);
-            setLoggedInVoter(null);
-            setVoterToken(null);
-          }}
-          voter={loggedInVoter}
-          token={voterToken}
-        />
-      )}
-      
-      {/* Admin Login */}
-      {showAdminLogin && (
-        <AdminLogin 
-          onClose={() => setShowAdminLogin(false)}
-          onLoginSuccess={(token) => {
-            setAdminToken(token);
-            setShowAdminLogin(false);
-            setShowAdminDashboard(true);
-          }}
-        />
-      )}
-      
-      {/* Admin Dashboard */}
-      {showAdminDashboard && (
-        <Suspense fallback={<div className="fullscreen-loading-overlay"><div className="loading-content"><div className="loading-spinner"></div><p>Loading admin portal...</p></div></div>}>
-          <AdminDashboard
-            token={adminToken}
-            onClose={() => {
-              setShowAdminDashboard(false);
-              setAdminToken(null);
-            }}
-          />
-        </Suspense>
-      )}
+
     </header>
   );
 };

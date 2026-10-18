@@ -3,7 +3,7 @@ import CustomAlert from './CustomAlert';
 import { apiRequest } from '../api';
 import '../App.css';
 
-const RegisterVoter = ({ onClose }) => {
+const RegisterVoter = ({ onClose, onRegistered = onClose }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -40,7 +40,7 @@ const RegisterVoter = ({ onClose }) => {
       const { confirmPassword, ...registration } = formData;
       await apiRequest('/register', { method: 'POST', body: registration });
       setAlert({ message: 'Registration successful!\nYou can now login to vote.', type: 'success' });
-      setTimeout(() => onClose(), 2000);
+      setTimeout(() => onRegistered(), 2000);
     } catch (error) {
       setAlert({ message: error.message, type: 'error' });
     } finally {

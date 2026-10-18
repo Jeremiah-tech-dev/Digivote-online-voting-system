@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './App.css';
 
 const Hero = () => {
@@ -29,24 +30,24 @@ const Hero = () => {
          Your voice sets the tone. Every vote pushes the nation forward — powered by DigiVote’s simple, secure, and transparent system that keeps your choice protected and your future unlocked.
         </p>
 
-        <button className="cta-button">
+        <Link to="/login" className="cta-button">
           VOTE FOR YOUR FUTURE <span className="check-box">✔</span>
-        </button>
+        </Link>
         
         {/* The floating bubbles on the left */}
         <div className="side-indicators">
-          <div className="indicator-item">
+          <Link to="/register" className="indicator-item">
             <span className="indicator-number">01</span>
             <span className="indicator-text">Register as a voter</span>
-          </div>
-          <div className="indicator-item">
+          </Link>
+          <Link to="/verify" className="indicator-item">
             <span className="indicator-number">02</span>
             <span className="indicator-text">Verify your voting details</span>
-          </div>
-          <div className="indicator-item">
+          </Link>
+          <Link to="/login" className="indicator-item">
             <span className="indicator-number">03</span>
             <span className="indicator-text">Login and vote</span>
-          </div>
+          </Link>
         </div>
       </div>
 

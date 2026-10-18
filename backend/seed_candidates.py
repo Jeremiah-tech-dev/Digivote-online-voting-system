@@ -1,9 +1,9 @@
-from app.database import SessionLocal, engine, Base
-from app.models import admin, audit_log, election, vote, voter  # noqa: F401 - registers the tables
+from app.database import SessionLocal
+from app.migrations import run_migrations
 from app.seed import seed_database
 
 # The API also runs this on startup; this script lets you seed without starting the server.
-Base.metadata.create_all(bind=engine)
+run_migrations()
 
 db = SessionLocal()
 try:

@@ -25,7 +25,7 @@ const CandidateGrid = ({ candidates }) => (
   </div>
 );
 
-const VotingDashboard = ({ onClose, voter, token }) => {
+const VotingDashboard = ({ onClose, onFinished, voter, token }) => {
   const [activeMenu, setActiveMenu] = useState('dashboard');
   const [showVotingPopup, setShowVotingPopup] = useState(false);
   const [showConfirmAlert, setShowConfirmAlert] = useState(false);
@@ -269,7 +269,7 @@ const VotingDashboard = ({ onClose, voter, token }) => {
       )}
       {showVotingPopup && (
         <VotingPopup
-          onClose={() => setShowVotingPopup(false)}
+          onFinished={onFinished}
           voterCounty={voter?.county}
           candidates={candidates}
           electionId={ELECTION_ID}

@@ -5,7 +5,7 @@ import '../App.css';
 
 const REVIEW_STEP = 3;
 
-const VotingPopup = ({ voterCounty, candidates, electionId, token }) => {
+const VotingPopup = ({ voterCounty, candidates, electionId, token, onFinished }) => {
   const [currentStep, setCurrentStep] = useState(0);
   // The voter's choice for each position: { presidential: {id, name}, governor: ..., senator: ... }
   const [selections, setSelections] = useState({});
@@ -52,9 +52,6 @@ const VotingPopup = ({ voterCounty, candidates, electionId, token }) => {
     }
   };
 
-  const handleSuccessClose = () => {
-    window.location.href = '/';
-  };
 
   if (receiptCode) {
     return (
@@ -68,7 +65,7 @@ const VotingPopup = ({ voterCounty, candidates, electionId, token }) => {
             Write this code down. You can use "Check ballot receipt" on the home page to confirm your
             ballot was counted. The code does not show who you voted for.
           </p>
-          <button className="alert-close-btn" onClick={handleSuccessClose}>OK</button>
+          <button className="alert-close-btn" onClick={onFinished}>OK</button>
         </div>
       </div>
     );

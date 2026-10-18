@@ -13,6 +13,8 @@ python-multipart = "==0.0.6"
 passlib = "==1.7.4"
 bcrypt = "==4.0.1"
 pyjwt = "==2.10.1"
+alembic = "==1.14.0"
+psycopg2-binary = "==2.9.10"
 
 [dev-packages]
 pytest = "==8.3.4"

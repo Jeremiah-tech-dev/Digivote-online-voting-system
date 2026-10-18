@@ -1,0 +1,118 @@
+/* --- LOGIN FORM --- */
+.login-form-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.login-form-content {
+  background: white;
+  border-radius: 16px;
+  padding: 50px;
+  max-width: 450px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.login-logo {
+  display: block;
+  margin: 0 auto 20px;
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+.login-form-content h2 {
+  color: #2c3e50;
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.login-subtitle {
+  text-align: center;
+  color: #7f8c8d;
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+}
+
+.login-form .form-group {
+  margin-bottom: 25px;
+}
+
+.login-form .form-group label {
+  display: block;
+  color: #2c3e50;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.login-form .form-group input {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.login-form .form-group input:focus {
+  outline: none;
+  border-color: #84cc16;
+}
+
+.login-btn {
+  width: 100%;
+  background: #84cc16;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-top: 10px;
+}
+
+.login-btn:hover {
+  background: #65a30d;
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.login-footer p {
+  color: #7f8c8d;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.register-link-btn {
+  background: transparent;
+  color: #84cc16;
+  border: 2px solid #84cc16;
+  padding: 10px 30px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.register-link-btn:hover {
+  background: #84cc16;
+  color: white;
+}

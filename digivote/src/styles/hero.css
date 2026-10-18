@@ -1,0 +1,275 @@
+/* --- HERO SECTION --- */
+.hero-section {
+  position: relative;
+  height: 85vh;
+  display: flex;
+  align-items: center;
+  padding: 0 5%;
+  background: #f4f6f7; /* Fallback */
+  background-image: url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'); /* City bg placeholder */
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+/* Faded white overlay on bg */
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(255, 255, 255, 0.85);
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+  max-width: 50%;
+  margin-left: 20%;
+  margin-top: -50px;
+}
+
+.sub-headline {
+  color: #e74c3c;
+  font-weight: 600;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.main-headline {
+  font-size: 3.5rem;
+  line-height: 1.1;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.highlight-red { color: #e74c3c; }
+
+.description {
+  color: #7f8c8d;
+  font-size: 14px;
+  max-width: 400px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  border-left: 3px solid #e74c3c;
+  padding-left: 15px;
+}
+
+.cta-button {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
+}
+
+.check-box {
+  background: white;
+  color: #e74c3c;
+  padding: 2px 5px;
+  border-radius: 2px;
+  font-size: 10px;
+}
+
+.flag-decoration {
+  position: absolute;
+  left: 0;
+  top: 5%;
+  z-index: 11;
+}
+
+.waving-flag {
+  width: 300px;
+  height: auto;
+}
+
+/* Side Indicators (01, 02, 03) */
+.side-indicators {
+  position: absolute;
+  /* Just to the left of the headline column */
+  right: calc(100% + 40px);
+  top: 80%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.indicator-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.indicator-number {
+  color: #2e7d32;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #2e7d32;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #e8f5e9;
+}
+
+.indicator-text {
+  color: #2e7d32;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* --- VISUALS --- */
+.hero-visual {
+  position: absolute;
+  bottom: 0;
+  left: 65%;
+  transform: translateX(-50%);
+  z-index: 5;
+  height: 90%;
+}
+
+.statue-img {
+  height: 100%;
+  object-fit: contain;
+  /* Adjust this based on your transparent image */
+}
+
+/* --- GEOMETRIC SHAPES (Right Side) --- */
+.geometric-shapes {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+/* The Red Triangle */
+.red-triangle {
+  position: absolute;
+  bottom: 0;
+  left: 15%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 500px 500px 500px;
+  border-color: transparent transparent rgba(231, 76, 60, 0.4) transparent;
+  z-index: 4;
+  mix-blend-mode: multiply;
+}
+
+/* The call-to-action and step bubbles are links to the app's pages */
+a.cta-button {
+  display: inline-flex;
+  text-decoration: none;
+}
+
+a.indicator-item {
+  color: inherit;
+  text-decoration: none;
+}
+
+a.indicator-item:hover .indicator-text {
+  color: #e74c3c;
+}
+
+/* Not enough room beside the headline: list the steps under the button instead */
+@media (max-width: 1280px) {
+  .side-indicators {
+    position: static;
+    transform: none;
+    margin-top: 28px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+  }
+
+  .hero-section {
+    height: auto;
+    min-height: 85vh;
+    padding-top: 60px;
+    padding-bottom: 60px;
+  }
+
+  .hero-content {
+    margin-top: 0;
+    margin-left: 12%;
+  }
+
+  .main-headline {
+    font-size: 2.8rem;
+  }
+
+  .waving-flag {
+    width: 170px;
+  }
+}
+
+/* Phones and small tablets: stack the hero instead of positioning it for a wide screen */
+@media (max-width: 900px) {
+  .hero-section {
+    height: auto;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 32px 16px 0;
+  }
+
+  .hero-content {
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .main-headline {
+    font-size: 2.2rem;
+  }
+
+  .description {
+    max-width: 100%;
+  }
+
+  .flag-decoration {
+    left: auto;
+    right: 8px;
+    top: 8px;
+    opacity: 0.85;
+  }
+
+  .waving-flag {
+    width: 110px;
+  }
+
+  .side-indicators {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .indicator-text {
+    white-space: normal;
+  }
+
+  .hero-visual {
+    position: relative;
+    left: auto;
+    transform: none;
+    height: 280px;
+    margin-top: 16px;
+    align-self: center;
+  }
+
+  .red-triangle {
+    border-width: 0 260px 260px 260px;
+    left: -40%;
+  }
+}

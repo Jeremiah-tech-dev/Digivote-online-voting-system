@@ -46,7 +46,7 @@ def seed_demo_data(db):
     if db.query(Voter).count() > 0:
         return
 
-    election = db.query(Election).filter(Election.id == 1).first()
+    election = db.query(Election).order_by(Election.id).first()
     candidates = db.query(Candidate).filter(Candidate.election_id == election.id).all()
     presidential = [c for c in candidates if c.position == 'Presidential']
 

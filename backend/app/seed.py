@@ -88,23 +88,26 @@ CANDIDATES = [
 def seed_database(db):
     """Create the election, its candidates and the first admin if they are missing.
     Safe to run many times: existing rows are left untouched."""
-    if not db.query(Election).filter(Election.id == 1).first():
-        db.add(Election(
-            id=1,
+    # The database assigns the ID (1 on a fresh database). Setting it by hand
+    # would put PostgreSQL's ID counter out of step.
+    election = db.query(Election).order_by(Election.id).first()
+    if not election:
+        election = Election(
             title="Kenya General Election 2027",
             description="National and County Elections",
             election_type="General",
             start_date=datetime(2027, 8, 9),
             end_date=datetime(2027, 8, 9),
             status="upcoming"
-        ))
+        )
+        db.add(election)
         db.commit()
 
     # Candidates are only seeded into an empty election, so ones an admin
     # deleted don't come back on the next restart
     if db.query(Candidate).count() == 0:
         for candidate_data in CANDIDATES:
-            db.add(Candidate(**candidate_data))
+            db.add(Candidate(**{**candidate_data, 'election_id': election.id}))
         db.commit()
 
     if config.DEMO_DATA:

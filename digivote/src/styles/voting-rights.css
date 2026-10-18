@@ -1,0 +1,83 @@
+/* --- VOTING RIGHTS SECTION --- */
+.voting-rights-section {
+  padding: 80px 5%;
+  background: #f8f9fa;
+}
+
+.voting-rights-header h2 {
+  font-family: Georgia, serif;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #1e3a8a;
+  margin-bottom: 50px;
+  display: inline-block;
+  border-bottom: 4px solid #e74c3c;
+  padding-bottom: 10px;
+}
+
+.voting-rights-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+}
+
+.voting-rights-grid .voting-card:nth-child(n+5) {
+  grid-column: span 1;
+}
+
+.voting-card {
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 40px 30px;
+  text-align: center;
+  transition: box-shadow 0.3s;
+}
+
+.voting-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.voting-card-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #e3f2fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  color: #1e3a8a;
+  font-size: 32px;
+}
+
+.voting-card h3 {
+  font-family: Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #1e3a8a;
+  margin-bottom: 15px;
+}
+
+.voting-card p {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.6;
+}
+
+@media (max-width: 1024px) {
+  .voting-rights-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .voting-rights-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .voting-rights-header h2 {
+    font-size: 2rem;
+  }
+}
